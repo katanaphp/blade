@@ -4,6 +4,7 @@ namespace Blade;
 
 use Blade\Environments\FragmentEnvironment;
 use Blade\Environments\StackEnvironment;
+use Blade\Exceptions\BladeException;
 use Closure;
 use Exception;
 use InvalidArgumentException;
@@ -52,10 +53,25 @@ final class Blade
         $this->mode = $mode;
     }
 
-    public function __construct(string $viewPath, string $cachePath)
+    public function __construct(?string $viewPath = null, ?string $cachePath = null, ?Config $config = null)
     {
-        $this->viewPath = rtrim($viewPath, '/');
-        $this->cachePath = rtrim($cachePath, '/');
+        if (!$viewPath && !$config) {
+            throw new BladeException(Messages::ERROR_VIEW_PATH_REQUIRED);
+        }
+
+        if (!$cachePath && !$config) {
+            throw new BladeException(Messages::ERROR_CACHE_PATH_REQUIRED);
+        }
+
+        if ($viewPath && $cachePath) {
+            $this->viewPath = rtrim($viewPath, '/');
+            $this->cachePath = rtrim($cachePath, '/');
+
+            /**
+             * Add default directory for anonymous components.
+             */
+            $this->addAnonymousComponentPath(sprintf('%s/components', $this->viewPath));
+        }
 
         /**
          * Always assume application is running
@@ -64,12 +80,6 @@ final class Blade
         $this->setEnvironment(fn() => self::DEFAULT_APP_ENVIRONMENT);
         $this->setDirective('production', fn() => $this->getDirective('env')(self::DEFAULT_APP_ENVIRONMENT));
 
-        /**
-         * Add default directory for anonymous components.
-         */
-        $this->addAnonymousComponentPath(
-            sprintf('%s/components', $this->viewPath)
-        );
 
         $this->componentRenderer = new ComponentRenderer($this);
         $this->templateRenderer = new TemplateInheritanceRenderer($this);
