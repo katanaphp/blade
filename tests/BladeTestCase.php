@@ -4,7 +4,4 @@ namespace Tests;
 
 use PHPUnit\Framework\TestCase;
 
-abstract class BladeTestCase extends TestCase
-{
-    use VerifiesOutputTrait;
-}
+abstract class BladeTestCase extends TestCase {}

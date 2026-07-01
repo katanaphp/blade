@@ -40,6 +40,8 @@ final class Blade
     protected int $mode = self::MODE_PRODUCTION;
     protected array $anonymousComponentPaths = [];
 
+    public Config $config;
+
     /**
      *
      */
@@ -63,9 +65,13 @@ final class Blade
             throw new BladeException(Messages::ERROR_CACHE_PATH_REQUIRED);
         }
 
+        $this->config = ($config ?? new Config);
+
         if ($viewPath && $cachePath) {
             $this->viewPath = rtrim($viewPath, '/');
             $this->cachePath = rtrim($cachePath, '/');
+
+            $this->config->addViewFinder(new FileSystemViewFinder($viewPath));
 
             /**
              * Add default directory for anonymous components.
