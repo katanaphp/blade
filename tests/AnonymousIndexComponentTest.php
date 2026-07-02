@@ -2,8 +2,10 @@
 
 namespace Tests;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('component')]
 class AnonymousIndexComponentTest extends TestCase
 {
     use VerifiesOutputTrait;

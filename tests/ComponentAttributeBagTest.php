@@ -3,8 +3,10 @@
 namespace Tests;
 
 use Blade\Attributes;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('component')]
 class ComponentAttributeBagTest extends TestCase
 {
     use VerifiesOutputTrait;
