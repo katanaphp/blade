@@ -63,4 +63,23 @@ class ComponentAttributeTest extends TestCase
             $this->renderBlade('<x-alert name="Hello, {{ $name }}" />', ['name' => 'Taylor'])
         );
     }
+
+    public function testMultiLineProps(): void
+    {
+        $this->createComponent(
+            'alert',
+            '@props([
+                "type" => "info",
+                "message" => "Everything is going well",
+                "time" => time(),
+            ])
+            {{ $message }} at {{ $time }}',
+        );
+
+
+        $this->assertStringContainsString(
+            'Everything is going well at ' . time(),
+            $this->renderBlade('<x-alert/>')
+        );
+    }
 }
