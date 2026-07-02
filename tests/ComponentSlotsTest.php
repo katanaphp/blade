@@ -253,4 +253,41 @@ class ComponentSlotsTest extends TestCase
             $this->removeIndentation($this->renderBlade($blade))
         );
     }
+
+    public function testComponentIsAvailableInSlot(): void
+    {
+        $this->createComponent('alert', '<div>{{ $slot }}</div>');
+
+        $this->assertSame(
+            '<div> yes </div>',
+            $this->renderBlade(
+                '<x-alert><x-slot>@isset($component) yes @endisset</x-slot></x-alert>'
+            )
+        );
+    }
+
+    public function testComponentAttributesAreAccessible(): void
+    {
+        $this->createComponent('alert', '<div>{{ $slot }}</div>');
+
+        $this->assertSame(
+            '<div>warning</div>',
+            $this->renderBlade(
+                '<x-alert type="warning"><x-slot>{{ $component->attributes->get("type") }}</x-slot></x-alert>'
+            )
+        );
+    }
+
+    public function testComponentDynamicAttributesAreAccessible(): void
+    {
+        $this->createComponent('alert', '<div>{{ $slot }}</div>');
+
+        $this->assertSame(
+            '<div>warning</div>',
+            $this->renderBlade(
+                '<x-alert :type="$type"><x-slot>{{ $component->attributes->get("type") }}</x-slot></x-alert>',
+                ['type' => 'warning']
+            )
+        );
+    }
 }
