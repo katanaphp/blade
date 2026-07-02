@@ -11,11 +11,11 @@ abstract class Component
     public array $props = [];
     public array $slots = [];
 
-    protected bool $exists;
+    protected bool $exists = false;
     protected string $resolvedName;
     protected ViewFinder $viewFinder;
 
-    public function __construct(public string $name, public array $data, protected Blade $engine)
+    public function __construct(public string $name, public array $data, protected Blade $engine, public bool $componentDirectiveMode = false)
     {
         $this->attributes = new Attributes($data);
 
@@ -24,8 +24,12 @@ abstract class Component
             "components.{$this->name}.index",
         ];
 
+        if ($this->componentDirectiveMode) {
+            array_unshift($names, $this->name);
+        }
+
         foreach ($this->engine->config->getViewFinders() as $viewFinder) {
-            if (isset($this->exists)) {
+            if ($this->exists) {
                 break;
             }
 
@@ -41,7 +45,7 @@ abstract class Component
         }
 
         foreach ($this->engine->config->getAnonymousComponentViewFinders() as $viewFinder) {
-            if (isset($this->exists)) {
+            if ($this->exists) {
                 break;
             }
 

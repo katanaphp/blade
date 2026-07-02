@@ -23,7 +23,7 @@ class ComponentRenderer
     public function prepare(string $name, $data = [], bool $componentDirectiveCompatibility = false)
     {
 
-        $component = new class($name, $data, $this->blade) extends Component {};
+        $component = new class($name, $data, $this->blade, $componentDirectiveCompatibility) extends Component {};
 
         $this->stack[] = $component;
 
@@ -96,7 +96,7 @@ class ComponentRenderer
 
 
         foreach ($attributes as $key => $value) {
-            $key = ($component->componentDirectiveCompatibility ?? false) ? $key : toCamelCase($key);
+            $key = ($component->componentDirectiveMode ?? false) ? $key : toCamelCase($key);
             $data[$key] = $value;
         }
 
