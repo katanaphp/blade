@@ -53,4 +53,38 @@ class AnonymousIndexComponentTest extends TestCase
             $this->renderBlade('<x-external-view />')
         );
     }
+
+    public function testLoadsComponentFromCustomViewFinder(): void
+    {
+        $customFinder = new class(['custom-alert' => 'Custom ViewFinder Alert']) extends \Blade\ViewFinder {
+            private array $views;
+
+            public function __construct(array $views)
+            {
+                $this->views = $views;
+            }
+
+            public function viewExists(string $name): bool
+            {
+                return isset($this->views[$name]);
+            }
+
+            public function lastModified(string $name): int
+            {
+                return time();
+            }
+
+            public function getContents(string $name): string
+            {
+                return $this->views[$name] ?? '';
+            }
+        };
+
+        $this->blade->addAnonymousComponentPath($customFinder);
+
+        $this->assertSame(
+            'Custom ViewFinder Alert',
+            $this->renderBlade('<x-custom-alert />')
+        );
+    }
 }

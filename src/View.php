@@ -6,7 +6,7 @@ use Blade\Interfaces\HtmlableInterface;
 
 class View implements HtmlableInterface
 {
-    public function __construct(protected Blade $engine, public string $path, public array $data = []) {}
+    public function __construct(protected Blade $engine, public string | Component $view, public array $data = []) {}
 
     public function with(array $data): static
     {
@@ -57,7 +57,7 @@ class View implements HtmlableInterface
     public function render(?callable $callback = null): string
     {
         ob_start();
-        $this->engine->renderContents($this->path, $this->data);
+        $this->engine->renderContents($this->view, $this->data);
         $output =  ob_get_clean();
 
         if ($callback) {

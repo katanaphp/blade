@@ -22,15 +22,10 @@ class ComponentRenderer
      */
     public function prepare(string $name, $data = [], bool $componentDirectiveCompatibility = false)
     {
-        $this->stack[] = (object) [
-            'name' => $name,
-            'componentDirectiveCompatibility' => $componentDirectiveCompatibility,
-            'viewPath' => $this->blade->resolveComponentPath($name, $componentDirectiveCompatibility),
-            'data' => $data,
-            'attributes' => new Attributes($data),
-            'props' => [],
-            'slots' => [],
-        ];
+
+        $component = new class($name, $data, $this->blade) extends Component {};
+
+        $this->stack[] = $component;
 
         ob_start();
     }
@@ -84,8 +79,8 @@ class ComponentRenderer
 
         $component->slot =  new Slot($slot, new Attributes([]));
 
-        $rendered = $this->blade->renderViewFile(
-            $component->viewPath,
+        $rendered = $this->blade->render(
+            $component,
             (array) $this->getViewData(),
         );
 

@@ -34,11 +34,9 @@ final class Blade
     public ComponentRenderer $componentRenderer;
     public TemplateInheritanceRenderer $templateRenderer;
 
-    public string $viewPath;
     public string $cachePath;
 
     protected int $mode = self::MODE_PRODUCTION;
-    protected array $anonymousComponentPaths = [];
 
     public Config $config;
 
@@ -68,7 +66,6 @@ final class Blade
         $this->config = ($config ?? new Config);
 
         if ($viewPath && $cachePath) {
-            $this->viewPath = rtrim($viewPath, '/');
             $this->cachePath = rtrim($cachePath, '/');
 
             $this->config->addViewFinder(new FileSystemViewFinder($viewPath));
@@ -76,7 +73,7 @@ final class Blade
             /**
              * Add default directory for anonymous components.
              */
-            $this->addAnonymousComponentPath(sprintf('%s/components', $this->viewPath));
+            // $this->addAnonymousComponentPath(sprintf('%s/components', $this->viewPath));
         }
 
         /**
@@ -136,68 +133,44 @@ final class Blade
     }
 
     /**
-     * Register path for anonymous components other than
+     * Register a path or view finder for anonymous components other than
      * the default view path.
      */
-    public function addAnonymousComponentPath(string $path): self
+    public function addAnonymousComponentPath(string|ViewFinder $path): self
     {
-        $this->anonymousComponentPaths[] = $path;
+        if (is_string($path)) {
+            $path = new FileSystemViewFinder($path);
+        }
+
+        $this->config->addAnonymousComponentViewFinder($path);
 
         return $this;
     }
 
-    public function resolveComponentPath(string $name, bool $componentDirectiveCompatibility = false): string
+    public function compile(string | Component $view): string
     {
-        $names = [
-            $name,
-            "{$name}.index",
-        ];
-
-        $paths = $this->anonymousComponentPaths;
-
-        if ($componentDirectiveCompatibility) {
-            $paths = [$this->viewPath, ...$paths];
+        if (!$this->viewExists($view)) {
+            throw new BladeException(
+                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view)
+            );
         }
 
-        foreach ($paths as $basePath) {
-            foreach ($names as $name) {
-                $path = sprintf("%s/%s", $basePath, $this->getViewFileName($name));
-
-                if (file_exists($path)) {
-                    return $path;
-                }
-            }
-        }
-
-        return '';
-    }
-
-    public function compile(string $viewPath): string
-    {
-        $path = $viewPath;
-
-        if (!file_exists($path)) {
-            throw new \Exception('View not found' .  $path);
-        }
-
-        $identifier = $this->getViewIdentifier($path);
+        $identifier = $this->getViewIdentifier($view);
         $compiledPath = $this->getCachedViewPath($identifier);
 
         if (file_exists($compiledPath)) {
             return $identifier;
         }
 
-        $viewContents = file_get_contents($path);
-
-        $complied = (new Compiler($viewContents, $this))->compile();
-        $complied .= "<?php ##PATH $path ## ?>";
+        $complied = (new Compiler($this->getViewContents($view), $this))->compile();
+        $complied .= "<?php ##PATH  ## ?>";
 
         $this->saveCache($identifier, $complied);
 
         return $identifier;
     }
 
-    public function getViewIdentifier(string $path): string
+    public function getViewIdentifier(string | Component $view): string
     {
         /**
          * During unit tests the resolution time of filemtime
@@ -205,23 +178,35 @@ final class Blade
          * in the file to trigger recompilation.
          */
         if ($this->mode === self::MODE_TESTING) {
-            return hash('sha1', file_get_contents($path));
+            return hash('sha1', $this->getViewContents($view));
         }
 
-        return hash('sha1', $path . filemtime($path));
+        return hash('sha1', $view . filemtime($view));
     }
 
-    public function render(string $view, array $data = []): View
+    protected function getViewContents(string | Component $name): string
     {
-        return $this->renderViewFile($this->getViewPath($view), $data);
+        if ($name instanceof Component) {
+            return $name->getContents();
+        } else {
+            foreach ($this->config->getViewFinders() as $finder) {
+                if ($finder->viewExists($name)) {
+                    return $finder->getContents($name);
+                }
+            }
+        }
     }
 
-    public function renderViewFile(string $viewPath, array $data): View
+    // protected function getComponentViewContent(Component $component): string{
+
+    // }
+
+    public function render(string | Component $view, array $data = []): View
     {
-        return new View($this, $viewPath, $data);
+        return new View($this, $view, $data);
     }
 
-    public function renderContents(string $viewPath, array $data = []): void
+    public function renderContents(string | Component $view, array $data = []): void
     {
         extract($data, EXTR_SKIP);
 
@@ -229,29 +214,19 @@ final class Blade
         $template_renderer = $this->templateRenderer;
         $__env = $this;
 
-        include $this->getCachedViewPath($this->compile($viewPath));
+        include $this->getCachedViewPath($this->compile($view));
     }
 
-    public function viewExists(string $name): bool
+    public function viewExists(string | Component $view, bool $isComponent = false): bool
     {
-        return file_exists($this->getViewPath($name));
-    }
-
-    protected function getViewPath(string $name): string
-    {
-        return sprintf(
-            '%s/%s.blade.php',
-            rtrim($this->viewPath, '/'),
-            str_replace('.', '/', $name)
-        );
-    }
-
-    protected function getViewFileName(string $name): string
-    {
-        return sprintf(
-            '%s.blade.php',
-            str_replace('.', '/', $name)
-        );
+        if ($view instanceof Component) {
+            return $view->viewExists();
+        } else {
+            return array_any(
+                $this->config->getViewFinders(),
+                fn($viewFinder) => $viewFinder->viewExists($view)
+            );
+        }
     }
 
     protected function getCachedViewPath(string $identifier): string
