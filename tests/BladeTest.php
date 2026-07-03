@@ -14,7 +14,9 @@ class BladeTest extends TestCase
     {
         $additionalDir = $this->blade->viewPath . '/additional-components';
 
-        mkdir($additionalDir, recursive: true);
+        if (!is_dir($additionalDir) && !mkdir($additionalDir, recursive: true)) {
+            throw new Exception('Failed to create directory');
+        }
 
         file_put_contents(
             sprintf('%s/%s', $additionalDir, 'external-view.blade.php'),
