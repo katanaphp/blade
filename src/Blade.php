@@ -33,8 +33,8 @@ final class Blade
     public ComponentRenderer $componentRenderer;
     public TemplateInheritanceRenderer $templateRenderer;
 
-    public readonly string $viewPath;
-    public readonly string $cachePath;
+    public string $viewPath;
+    public string $cachePath;
 
     protected int $mode = self::MODE_PRODUCTION;
     protected array $anonymousComponentPaths = [];
@@ -189,10 +189,10 @@ final class Blade
          * in the file to trigger recompilation.
          */
         if ($this->mode === self::MODE_TESTING) {
-            return hash('xxh64', file_get_contents($path));
+            return hash('sha1', file_get_contents($path));
         }
 
-        return hash('xxh64', $path . filemtime($path));
+        return hash('sha1', $path . filemtime($path));
     }
 
     public function render(string $view, array $data = []): View

@@ -5,6 +5,7 @@ namespace Tests;
 use ArrayIterator;
 use IteratorAggregate;
 use PHPUnit\Framework\TestCase;
+use Traversable;
 
 class LoopVariableTest extends TestCase
 {
@@ -223,7 +224,7 @@ class LoopVariableTest extends TestCase
                 $this->data = $data;
             }
 
-            public function getIterator()
+            public function getIterator(): Traversable
             {
                 return new ArrayIterator($this->data);
             }

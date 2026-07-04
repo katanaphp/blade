@@ -13,7 +13,7 @@ class Slot implements HtmlableInterface
 {
     public function __construct(
         private string $slot,
-        public readonly Attributes $attributes
+        public Attributes $attributes
     ) {
     }
 
