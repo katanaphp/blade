@@ -29,6 +29,31 @@ class TemplateInheritanceTest extends TestCase
         );
     }
 
+    public function testExtendsReceivesViewData(): void
+    {
+        $layout = sprintf(self::LAYOUT, '{{ $viewData }}');
+        $this->createTemporaryBladeFile($layout, 'layout');
+
+        $message = 'Data passed to view';
+
+        $this->assertSame(
+            sprintf(self::LAYOUT, $message),
+            $this->renderBlade('@extends("layout")', ['viewData' => $message,])
+        );
+    }
+
+    public function testExtendsReceivesVariablesDefinedInView(): void
+    {
+        $layout = sprintf(self::LAYOUT, '{{ $declaredInView }}');
+        $this->createTemporaryBladeFile($layout, 'layout');
+
+        $message = 'declared in view';
+
+        $this->assertSame(
+            sprintf(self::LAYOUT, $message),
+            $this->renderBlade("@extends('layout') @php \$declaredInView = '$message' @endphp")
+        );
+    }
 
     public function testYieldWithDefaultContent(): void
     {

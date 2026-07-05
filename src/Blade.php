@@ -213,17 +213,7 @@ final class Blade
         $template_renderer = $this->templateRenderer;
         $__env = $this;
 
-        // Make the render data available to the template-inheritance renderer so
-        // @extends can pass it on to the parent layout. Saved and restored around the
-        // include so nested renders (components, includes) do not clobber it.
-        $previousContextData = $template_renderer->getContextData();
-        $template_renderer->withContextData($data);
-
-        try {
-            include $this->getCachedViewPath($this->compile($viewPath));
-        } finally {
-            $template_renderer->withContextData($previousContextData);
-        }
+        include $this->getCachedViewPath($this->compile($viewPath));
     }
 
     public function viewExists(string $name): bool

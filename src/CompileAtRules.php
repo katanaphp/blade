@@ -336,7 +336,7 @@ class CompileAtRules
 
     protected function endExtends(): string
     {
-        return "<?php \$template_renderer->output(); ?>";
+        return "<?php \$template_renderer->withDefault(get_defined_vars())->output(); ?>";
     }
 
     protected function compileYield(string $expression): string
