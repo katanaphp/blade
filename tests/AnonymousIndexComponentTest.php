@@ -35,7 +35,7 @@ class AnonymousIndexComponentTest extends TestCase
 
     public function testLoadsComponentFromAdditionalPath(): void
     {
-        $additionalDir = $this->blade->viewPath . '/additional-components';
+        $additionalDir = $this->getTempDirectory() . '/additional-components';
 
         if (!is_dir($additionalDir) && !mkdir($additionalDir, recursive: true)) {
             throw new Exception('Failed to create directory');
