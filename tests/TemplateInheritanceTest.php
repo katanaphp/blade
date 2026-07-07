@@ -55,6 +55,21 @@ class TemplateInheritanceTest extends TestCase
         );
     }
 
+    public function testIncludeDoesNotPolluteContext(): void
+    {
+        $layout = sprintf(self::LAYOUT, '{{ $pageName }}');
+        $this->createTemporaryBladeFile($layout, 'layout');
+
+        $this->createTemporaryBladeFile('@php $pageName = "About us" @endphp', 'subview');
+
+        $pageName = 'Homepage';
+
+        $this->assertSame(
+            sprintf(self::LAYOUT, $pageName),
+            $this->renderBlade("@extends('layout') @include('subview')", ['pageName' => $pageName])
+        );
+    }
+
     public function testYieldWithDefaultContent(): void
     {
         $this->createTemporaryBladeFile(
