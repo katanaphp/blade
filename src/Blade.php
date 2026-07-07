@@ -222,11 +222,14 @@ final class Blade
         if ($view instanceof Component) {
             return $view->viewExists();
         } else {
-            return array_any(
-                $this->config->getViewFinders(),
-                fn($viewFinder) => $viewFinder->viewExists($view)
-            );
+            foreach ($this->config->getViewFinders() as $finder) {
+                if ($finder->viewExists($view)) {
+                    return true;
+                }
+            }
         }
+
+        return false;
     }
 
     protected function getCachedViewPath(string $identifier): string

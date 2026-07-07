@@ -27,7 +27,7 @@ class FileSystemViewFinderTest extends BladeTestCase
     #[Override]
     public function tearDown(): void
     {
-        array_walk($this->files, unlink(...));
+        array_walk($this->files, fn(string $path) => unlink($path));
 
         parent::tearDown();
     }
