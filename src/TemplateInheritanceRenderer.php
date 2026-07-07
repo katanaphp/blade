@@ -107,7 +107,10 @@ class TemplateInheritanceRenderer
 
         $this->renderingParentLayout = true;
 
-        echo $this->blade->render($this->template);
+        $defaultData = $this->tempContextData ?? [];
+        $this->tempContextData = null;
+
+        echo $this->blade->render($this->template, $defaultData);
     }
 
     public function include(string $template, array $data = [])
