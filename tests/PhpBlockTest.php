@@ -41,4 +41,44 @@ class PhpBlockTest extends TestCase
             );
         }
     }
+
+    public function testPhpTagsAreAllowed(): void
+    {
+        $this->assertSame(
+            "Hello",
+            $this->renderBlade("<?php echo 'Hello'; ?>")
+        );
+    }
+
+    public function testDoesNotCompileDirectivesInPhp(): void
+    {
+        $template = "@if(true) hello @endif <?php echo '{{ 1 + 1 }}'; ?>";
+
+        $this->assertSame(
+            'hello {{ 1 + 1 }}',
+            $this->removeIndentation($this->renderBlade($template))
+        );
+    }
+
+    public function testOutputsPhpTagsInPhp(): void
+    {
+        $template = "<?php echo '<?php hello_world ?>';?>";
+
+        $this->assertSame(
+            "<?php hello_world ?>",
+            $this->renderBlade($template)
+        );
+    }
+
+    public function testCommentsTakesPrecedenceOverPhp(): void
+    {
+        $templates = [
+            "{{-- @php echo 'HELLO WORLD' @endphp --}}",
+            "{{-- <?php echo 'Hello world' ?> --}}",
+        ];
+
+        foreach ($templates as $template) {
+            $this->assertEmpty($this->renderBlade($template));
+        }
+    }
 }

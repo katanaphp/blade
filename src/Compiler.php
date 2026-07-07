@@ -2,6 +2,8 @@
 
 namespace Blade;
 
+use Exception;
+use PhpToken;
 
 class Compiler
 {
@@ -85,6 +87,8 @@ class Compiler
      */
     protected function compilePhpBlock(string $template): string
     {
+        $template = $this->replacePhpTagsWithDirectives($template);
+
         return preg_replace_callback(
             "/@php(?'content'(?:\s|.)*?)@endphp/",
             function (array $matches) {
@@ -97,6 +101,23 @@ class Compiler
             },
             $template
         );
+    }
+
+    protected function replacePhpTagsWithDirectives(string $template): string
+    {
+        return array_reduce(token_get_all($template), function (string $template, string|array $token) {
+            if (is_array($token)) {
+                $template .= match ($token[0]) {
+                    T_OPEN_TAG => "@php",
+                    T_CLOSE_TAG => "@endphp",
+                    default => $token[1],
+                };
+            } else {
+                $template .= $token;
+            }
+
+            return $template;
+        }, '');
     }
 
     protected function getContentBlockTag(string $identifier): string
@@ -170,8 +191,8 @@ class Compiler
 
                     $content = str_replace(
                         '@once',
-                        "<?php if(!\$template_renderer->hasRendered('$identifier')): ?>".
-                        "<?php \$template_renderer->markAsRendered('$identifier'); ?>",
+                        "<?php if(!\$template_renderer->hasRendered('$identifier')): ?>" .
+                            "<?php \$template_renderer->markAsRendered('$identifier'); ?>",
                         $content
                     );
 
