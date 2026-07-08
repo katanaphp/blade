@@ -11,18 +11,6 @@ use InvalidArgumentException;
 
 final class Blade
 {
-    /**
-     * Default mode, templates files
-     * will be compiled and cached.
-     */
-    public const MODE_PRODUCTION = 1;
-
-    /**
-     * Only to be used in while running
-     * tests.
-     */
-    public const MODE_TESTING = 2;
-
     public const RESERVED_DIRECTIVES = [
         'env',
         'production',
@@ -36,8 +24,6 @@ final class Blade
 
     public string $cachePath;
 
-    protected int $mode = self::MODE_PRODUCTION;
-
     public Config $config;
 
     /**
@@ -47,11 +33,6 @@ final class Blade
 
     use FragmentEnvironment;
     use StackEnvironment;
-
-    public function setMode(int $mode): void
-    {
-        $this->mode = $mode;
-    }
 
     public function __construct(?string $viewPath = null, ?string $cachePath = null, ?Config $config = null)
     {
@@ -66,13 +47,7 @@ final class Blade
         $this->config = ($config ?? new Config);
 
         if ($viewPath) {
-
             $this->config->addViewFinder(new FileSystemViewFinder($viewPath));
-
-            /**
-             * Add default directory for anonymous components.
-             */
-            // $this->addAnonymousComponentPath(sprintf('%s/components', $this->viewPath));
         }
 
         if ($cachePath) {
@@ -176,12 +151,6 @@ final class Blade
 
     public function getViewIdentifier(string | Component $view): string
     {
-        /**
-         * During unit tests the resolution time of filemtime
-         * might not be sufficient, to identify changes
-         * in the file to trigger recompilation.
-         */
-
         $name = is_string($view) ? $view : $view->name;
 
         return hash('sha1', $name . $this->getLastModified($view));
@@ -212,10 +181,6 @@ final class Blade
             }
         }
     }
-
-    // protected function getComponentViewContent(Component $component): string{
-
-    // }
 
     public function render(string | Component $view, array $data = []): View
     {
