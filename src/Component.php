@@ -72,4 +72,9 @@ abstract class Component
     {
         return $this->viewFinder->getContents($this->resolvedName);
     }
+
+    public function lastModified(): int
+    {
+        return $this->viewFinder->lastModified($this->resolvedName);
+    }
 }

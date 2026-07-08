@@ -65,8 +65,7 @@ final class Blade
 
         $this->config = ($config ?? new Config);
 
-        if ($viewPath && $cachePath) {
-            $this->cachePath = rtrim($cachePath, '/');
+        if ($viewPath) {
 
             $this->config->addViewFinder(new FileSystemViewFinder($viewPath));
 
@@ -76,7 +75,12 @@ final class Blade
             // $this->addAnonymousComponentPath(sprintf('%s/components', $this->viewPath));
         }
 
+        if ($cachePath) {
+            $this->cachePath = rtrim($cachePath, '/');
+        }
+
         /**
+         *
          * Always assume application is running
          * in production unless specified.
          */
@@ -177,11 +181,23 @@ final class Blade
          * might not be sufficient, to identify changes
          * in the file to trigger recompilation.
          */
-        if ($this->mode === self::MODE_TESTING) {
-            return hash('sha1', $this->getViewContents($view));
-        }
 
-        return hash('sha1', $view . filemtime($view));
+        $name = is_string($view) ? $view : $view->name;
+
+        return hash('sha1', $name . $this->getLastModified($view));
+    }
+
+    protected function getLastModified(string | Component $view): int
+    {
+        if ($view instanceof Component) {
+            return $view->lastModified();
+        } else {
+            foreach ($this->config->getViewFinders() as $finder) {
+                if ($finder->viewExists($view)) {
+                    return $finder->lastModified($view);
+                }
+            }
+        }
     }
 
     protected function getViewContents(string | Component $name): string
