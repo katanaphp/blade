@@ -37,8 +37,7 @@ trait VerifiesOutputTrait
         };
 
         $this->blade = new Blade(
-            cachePath: $this->getTempDirectory(),
-            config: (new Config)->addViewFinder($config)
+            config: (new Config($this->getTempDirectory()))->addViewFinder($config)
         );
     }
 
@@ -47,7 +46,7 @@ trait VerifiesOutputTrait
     {
         $files = array_merge(
             $this->createdFiles,
-            glob("{$this->blade->cachePath}/*.php")
+            glob("{$this->blade->config->cachePath}/*.php")
         );
 
         foreach ($files as $file) {

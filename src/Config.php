@@ -7,6 +7,18 @@ class Config
     protected array $viewFinders = [];
     protected array $anonymousComponentViewFinders = [];
 
+    public string $cachePath;
+
+    public function __construct(string $cachePath)
+    {
+        $this->cachePath = rtrim($cachePath, '/');
+    }
+
+    public function addViewPath(string $path): static
+    {
+        return $this->addViewFinder(new FileSystemViewFinder($path));
+    }
+
     public function addViewFinder(ViewFinder $finder): static
     {
         $this->viewFinders[] = $finder;

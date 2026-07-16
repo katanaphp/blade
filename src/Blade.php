@@ -38,20 +38,24 @@ final class Blade
     {
         if (!$viewPath && !$config) {
             throw new BladeException(Messages::ERROR_VIEW_PATH_REQUIRED);
+        } elseif ($viewPath && $config && count($config->getViewFinders()) > 0) {
+            throw new BladeException(Messages::ERROR_VIEW_PATH_CONFLICT);
         }
 
         if (!$cachePath && !$config) {
             throw new BladeException(Messages::ERROR_CACHE_PATH_REQUIRED);
+        } elseif ($cachePath && $config) {
+            throw new BladeException(Messages::ERROR_CACHE_PATH_CONFLICT);
         }
 
-        $this->config = ($config ?? new Config);
+        $this->config = ($config ?? new Config($cachePath));
 
         if ($viewPath) {
             $this->config->addViewFinder(new FileSystemViewFinder($viewPath));
         }
 
-        if ($cachePath) {
-            $this->cachePath = rtrim($cachePath, '/');
+        if (empty($this->config->getViewFinders())) {
+            throw new BladeException(Messages::ERROR_MISSING_DEFAULT_VIEW_FINDER);
         }
 
         /**
@@ -217,7 +221,7 @@ final class Blade
     {
         return sprintf(
             '%s/%s.php',
-            rtrim($this->cachePath, '/'),
+            rtrim($this->config->cachePath, '/'),
             $identifier
         );
     }
