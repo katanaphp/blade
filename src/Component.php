@@ -19,6 +19,11 @@ abstract class Component
     {
         $this->attributes = new Attributes($data);
 
+        if (str_contains($this->name, '::')) {
+            $this->resolveFromNamespace();
+            return;
+        }
+
         $names = [
             "components.{$this->name}",
             "components.{$this->name}.index",
@@ -60,6 +65,34 @@ abstract class Component
                     break;
                 }
             }
+        }
+    }
+
+    /**
+     * Resolves a <x-namespace::component /> name against the view finder registered
+     * for that namespace. A namespaced component is deliberately only looked up in
+     * its own namespace, so it can neither shadow nor be shadowed by other components.
+     */
+    protected function resolveFromNamespace(): void
+    {
+        [$namespace, $component] = explode('::', $this->name, 2);
+
+        $viewFinder = $this->engine->config->getAnonymousComponentNamespace($namespace);
+
+        if (is_null($viewFinder) || $component === '') {
+            return;
+        }
+
+        foreach ([$component, "{$component}.index"] as $name) {
+            if (!$viewFinder->viewExists($name)) {
+                continue;
+            }
+
+            $this->viewFinder = $viewFinder;
+            $this->resolvedName = $name;
+            $this->exists = true;
+
+            return;
         }
     }
 

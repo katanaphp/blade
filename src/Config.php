@@ -10,6 +10,9 @@ class Config
     protected array $viewFinders = [];
     protected array $anonymousComponentViewFinders = [];
 
+    /** @var array<string, ViewFinder> namespace => finder */
+    protected array $anonymousComponentNamespaces = [];
+
     public string $cachePath;
 
     protected array $directives = [];
@@ -67,6 +70,17 @@ class Config
         return $this;
     }
 
+    /**
+     * Registers a view finder under a component namespace, resolved as
+     * <x-namespace::component />. Re-registering a namespace replaces it.
+     */
+    public function addAnonymousComponentNamespace(string $namespace, ViewFinder $finder): static
+    {
+        $this->anonymousComponentNamespaces[$namespace] = $finder;
+
+        return $this;
+    }
+
     public function registerDirective(string $name, Closure $callback): static
     {
         return $this->setDirective($name, $callback);
@@ -82,5 +96,10 @@ class Config
     public function getDirective(string $name): ?callable
     {
         return $this->directives[$name] ?? null;
+    }
+
+    public function getAnonymousComponentNamespace(string $namespace): ?ViewFinder
+    {
+        return $this->anonymousComponentNamespaces[$namespace] ?? null;
     }
 }

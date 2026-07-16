@@ -128,6 +128,25 @@ final class Blade
         return $this;
     }
 
+    /**
+     * Register a path or view finder under a component namespace, so its
+     * components are addressed as <x-namespace::component />.
+     *
+     * Unlike addAnonymousComponentPath(), a namespaced component is only ever
+     * looked up in its own namespace, so a package can publish components that
+     * application components cannot shadow by accident.
+     */
+    public function addAnonymousComponentNamespace(string $namespace, string|ViewFinder $path): self
+    {
+        if (is_string($path)) {
+            $path = new FileSystemViewFinder($path);
+        }
+
+        $this->config->addAnonymousComponentNamespace($namespace, $path);
+
+        return $this;
+    }
+
     public function compile(string | Component $view): string
     {
         if (!$this->viewExists($view)) {

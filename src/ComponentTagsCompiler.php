@@ -18,7 +18,7 @@ class ComponentTagsCompiler
     protected function compileSelfClosingTags(string $template): string
     {
         $regex = <<<'REGEX'
-        /<x-(?'name'[a-z0-9-.]*)
+        /<x-(?'name'[a-z0-9-.]*(?:::[a-z0-9-.]+)?)
         \s*
         (?'attributes'
            (?>[\w\:\-\$]+
@@ -169,7 +169,7 @@ class ComponentTagsCompiler
     {
 
         $regex = <<<'REGEX'
-        /<x-(?'name'[a-z0-9-.]*)
+        /<x-(?'name'[a-z0-9-.]*(?:::[a-z0-9-.]+)?)
         \s*
         (?'attributes'
            (?>[\w\:\-]+
@@ -200,7 +200,7 @@ class ComponentTagsCompiler
 
     protected function compileClosingTags(string $template): string
     {
-        $regex = "/<\/x-(?'name'[a-z0-9\.-]+)>/";
+        $regex = "/<\/x-(?'name'[a-z0-9\.-]+(?:::[a-z0-9\.-]+)?)>/";
 
         return preg_replace_callback(
             $regex,
