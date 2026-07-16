@@ -27,7 +27,7 @@ jobs:
       with:
         php-version: ${{ matrix.php }}
         coverage: xdebug
-        tools: composer, phpunit, xdebug
+        tools: composer, xdebug
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -52,7 +52,7 @@ jobs:
 
     - name: Generate coverage
       if: ${{ matrix.php == '8.5' }}
-      run: phpunit --coverage-clover coverage
+      run: vendor/bin/phpunit --coverage-clover coverage
 
     - name: Generate coverage badge
       if: ${{ matrix.php == '8.5' }}
