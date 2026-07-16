@@ -81,4 +81,77 @@ class PhpBlockTest extends TestCase
             $this->assertEmpty($this->renderBlade($template));
         }
     }
+
+    public function testShortEchoTagsAreAllowed(): void
+    {
+        $templates = [
+            // Short echo on its own.
+            [
+                'blade' => '<?= "Hello" ?>',
+                'output' => 'Hello',
+            ],
+
+            // Short echo immediately followed by inline HTML: the closing tag
+            // must not become a stray @endphp while the opening tag survives.
+            [
+                'blade' => '<?= "x" ?>y',
+                'output' => 'xy'
+            ],
+
+            // Short echo inside an HTML attribute value.
+            [
+                'blade' => '<a href="<?= "x" ?>y">z</a>',
+                'output' => '<a href="xy">z</a>',
+            ],
+
+            // Short echo reading passed data, with a trailing element.
+            [
+                'blade' => '<div><?= $value ?>tail</div>',
+                'output' => '<div>Valuetail</div>',
+            ],
+
+            // Consecutive short echoes.
+            [
+                'blade' => '<?= "a" ?><?= "b" ?>',
+                'output' => 'ab',
+            ],
+
+            // Short and long echo mixed in one template.
+            [
+                'blade' => '<?= "a" ?>-<?php echo "b"; ?>',
+                'output' => 'a-b',
+            ],
+        ];
+
+        foreach ($templates as $template) {
+            $this->assertSame(
+                $template['output'],
+                $this->renderBlade(
+                    $template['blade'],
+                    ['value' => 'Value'],
+                ),
+            );
+        }
+    }
+
+    public function testDoesNotCompileDirectivesInShortEcho(): void
+    {
+        $templates = [
+            [
+                'blade' => '<?= "{{ 1 + 1 }}" ?>',
+                'output' => '{{ 1 + 1 }}',
+            ],
+            [
+                'blade' => '<?= "@if(true) @endif" ?>',
+                'output' => '@if(true) @endif',
+            ],
+        ];
+
+        foreach ($templates as $template) {
+            $this->assertSame(
+                $template['output'],
+                $this->renderBlade($template['blade']),
+            );
+        }
+    }
 }

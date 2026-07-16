@@ -109,6 +109,7 @@ class Compiler
             if (is_array($token)) {
                 $template .= match ($token[0]) {
                     T_OPEN_TAG => "@php",
+                    T_OPEN_TAG_WITH_ECHO => "@php echo ",
                     T_CLOSE_TAG => "@endphp",
                     default => $token[1],
                 };
