@@ -491,7 +491,7 @@ class CompileAtRules
 
         $attributes = "[ 'name' => '{$slotName}' ]";
 
-        return ComponentTagsCompiler::getStartRenderingCode('slot', $attributes, true);
+        return ComponentTagsCompiler::getStartRenderingCode('', 'slot', $attributes, true);
     }
 
     public function compileEndSlot(string $expression): string
@@ -514,7 +514,7 @@ class CompileAtRules
 
         $attributes = substr($expression, strlen($componentPart) + 1);
 
-        return ComponentTagsCompiler::getStartRenderingCode($componentName, $attributes, true);
+        return ComponentTagsCompiler::getStartRenderingCode('', $componentName, $attributes, true);
     }
 
     public function compileEndComponent(): string

@@ -15,11 +15,11 @@ abstract class Component
     protected string $resolvedName;
     protected ViewFinder $viewFinder;
 
-    public function __construct(public string $name, public array $data, protected Blade $engine, public bool $componentDirectiveMode = false)
+    public function __construct(public string $namespace, public string $name, public array $data, protected Blade $engine, public bool $componentDirectiveMode = false)
     {
         $this->attributes = new Attributes($data);
 
-        if (str_contains($this->name, '::')) {
+        if ($this->namespace) {
             $this->resolveFromNamespace();
             return;
         }
@@ -75,7 +75,8 @@ abstract class Component
      */
     protected function resolveFromNamespace(): void
     {
-        [$namespace, $component] = explode('::', $this->name, 2);
+        $namespace = $this->namespace;
+        $component = $this->name;
 
         $viewFinder = $this->engine->config->getAnonymousComponentNamespace($namespace);
 

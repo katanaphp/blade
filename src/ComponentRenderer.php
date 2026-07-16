@@ -20,10 +20,10 @@ class ComponentRenderer
      * @param array $data
      * @return void
      */
-    public function prepare(string $name, $data = [], bool $componentDirectiveCompatibility = false)
+    public function prepare(string $namespace, string $name, $data = [], bool $componentDirectiveCompatibility = false)
     {
 
-        $component = new class($name, $data, $this->blade, $componentDirectiveCompatibility) extends Component {};
+        $component = new class($namespace, $name, $data, $this->blade, $componentDirectiveCompatibility) extends Component {};
 
         $this->stack[] = $component;
 
