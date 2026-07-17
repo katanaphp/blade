@@ -12,4 +12,5 @@ class Messages
     public const ERROR_VIEW_PATH_CONFLICT = 'View path cannot be used when config has view finders. Use Config::addViewPath instead.';
     public const ERROR_CACHE_PATH_CONFLICT = 'Cache path parameter cannot be used when config has cache path set.';
     public const ERROR_MISSING_DEFAULT_VIEW_FINDER = 'Missing default views, use Config::addViewPath';
+    public const ERROR_AUTH_CALLBACK_REQUIRED = 'Auth callback is required, use Config::setAuth';
 }

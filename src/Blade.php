@@ -73,10 +73,10 @@ final class Blade
 
     public function getDirective(string $name): ?callable
     {
-        return $this->directives[$name] ?? null;
+        return $this->directives[$name] ?? $this->config->getDirective($name);
     }
 
-    public function runDirective($name, mixed $expression = ''): mixed
+    public function runDirective($name, ...$params): mixed
     {
         $callback = $this->getDirective($name);
 
@@ -84,7 +84,7 @@ final class Blade
             return false;
         }
 
-        return $callback($expression);
+        return $callback(...$params);
     }
 
     public function registerDirective(string $name, Closure $callback): static
@@ -199,7 +199,20 @@ final class Blade
         $template_renderer = $this->templateRenderer;
         $__env = $this;
 
-        include $this->getCachedViewPath($this->compile($view));
+        try {
+            include $this->getCachedViewPath($this->compile($view));
+        } catch (Exception $e) {
+            /**
+             * PHPUnit will mark tests as risky when output
+             * buffers are not properly closed, when exceptions
+             * are thrown during tests.
+             */
+            if (ob_get_level()) {
+                ob_get_clean();
+            }
+
+            throw $e;
+        }
     }
 
     public function viewExists(string | Component $view, bool $isComponent = false): bool
