@@ -59,7 +59,7 @@ class Config
     /**
      * @param Closure(...$params): bool $callback
      */
-    public function setAuth(Closure $callback): self
+    public function setAuth(Closure $callback): static
     {
         $this->registerDirective('auth', $callback);
         $this->registerDirective('guest', fn(...$params) => !$callback(...$params));

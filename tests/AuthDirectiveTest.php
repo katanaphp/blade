@@ -34,7 +34,6 @@ class AuthDirectiveTest extends TestCase
         $this->assertEmpty($this->renderBlade('@auth Authenticated @endauth'));
     }
 
-
     public function testGuestDirectiveThrowsExceptionWhenCallbackNotSet(): void
     {
         $this->expectException(BladeException::class);
@@ -42,6 +41,7 @@ class AuthDirectiveTest extends TestCase
 
         $this->renderBlade('@guest Authenticated @endguest');
     }
+
     public function testGuestDirectiveRendersWhenFalse(): void
     {
         $this->blade->config->setAuth(fn() => false);
@@ -58,7 +58,7 @@ class AuthDirectiveTest extends TestCase
 
     public function testAuthDirectiveReceivesParameters(): void
     {
-        $this->expectExceptionMessage(BladeException::class);
+        $this->expectException(BladeException::class);
         $this->expectExceptionMessage("User role is admin and is performing dance");
 
         $this->blade->config->setAuth(
@@ -70,7 +70,7 @@ class AuthDirectiveTest extends TestCase
 
     public function testGuestDirectiveReceivesParameters(): void
     {
-        $this->expectExceptionMessage(BladeException::class);
+        $this->expectException(BladeException::class);
         $this->expectExceptionMessage("Guest is looking for cart items and price");
 
         $this->blade->config->setAuth(
