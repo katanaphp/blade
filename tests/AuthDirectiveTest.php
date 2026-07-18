@@ -68,6 +68,21 @@ class AuthDirectiveTest extends TestCase
         $this->renderBlade("@auth('admin', 'dance') Dancing @endauth");
     }
 
+    public function testAuthDirectiveReceivesVariableParameters(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage("User role is admin and is performing dance");
+
+        $this->blade->config->setAuth(
+            fn(string $role, string $action) => throw new BladeException("User role is {$role} and is performing {$action}")
+        );
+
+        $this->renderBlade("@auth(\$role, \$action) Dancing @endauth", [
+            'role' => 'admin',
+            'action' => 'dance',
+        ]);
+    }
+
     public function testGuestDirectiveReceivesParameters(): void
     {
         $this->expectException(BladeException::class);
