@@ -164,26 +164,29 @@ final class Blade
     {
         if ($view instanceof Component) {
             return $view->lastModified();
-        } else {
-            foreach ($this->config->getViewFinders() as $finder) {
-                if ($finder->viewExists($view)) {
-                    return $finder->lastModified($view);
-                }
-            }
         }
+
+        $finder = $this->resolveFinder($view);
+        if (!$finder) {
+            throw new BladeException(sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view));
+        }
+
+        return $finder->lastModified($view);
     }
 
     protected function getViewContents(string | Component $name): string
     {
         if ($name instanceof Component) {
             return $name->getContents();
-        } else {
-            foreach ($this->config->getViewFinders() as $finder) {
-                if ($finder->viewExists($name)) {
-                    return $finder->getContents($name);
-                }
-            }
         }
+
+        $finder = $this->resolveFinder($name);
+
+        if (!$finder) {
+            throw new BladeException(sprintf(Messages::ERROR_VIEW_NOT_FOUND, $name));
+        }
+
+        return $finder->getContents($name);
     }
 
     public function render(string | Component $view, array $data = []): View
@@ -202,19 +205,24 @@ final class Blade
         include $this->getCachedViewPath($this->compile($view));
     }
 
+    protected function resolveFinder(string $name): ?ViewFinder
+    {
+        foreach ($this->config->getViewFinders() as $finder) {
+            if ($finder->viewExists($name)) {
+                return $finder;
+            }
+        }
+
+        return null;
+    }
+
     public function viewExists(string | Component $view, bool $isComponent = false): bool
     {
         if ($view instanceof Component) {
             return $view->viewExists();
-        } else {
-            foreach ($this->config->getViewFinders() as $finder) {
-                if ($finder->viewExists($view)) {
-                    return true;
-                }
-            }
         }
 
-        return false;
+        return $this->resolveFinder($view) !== null;
     }
 
     protected function getCachedViewPath(string $identifier): string
