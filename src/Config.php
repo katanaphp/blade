@@ -18,7 +18,7 @@ class Config
     {
         $this->cachePath = rtrim($cachePath, '/');
 
-        $this->setAuth(fn() => throw new BladeException(Messages::ERROR_AUTH_CALLBACK_REQUIRED));
+        $this->setAuthCallback(fn() => throw new BladeException(Messages::ERROR_AUTH_CALLBACK_REQUIRED));
     }
 
     public function addViewPath(string $path): static
@@ -59,7 +59,7 @@ class Config
     /**
      * @param Closure(...$params): bool $callback
      */
-    public function setAuth(Closure $callback): static
+    public function setAuthCallback(Closure $callback): static
     {
         $this->registerDirective('auth', $callback);
         $this->registerDirective('guest', fn(...$params) => !$callback(...$params));

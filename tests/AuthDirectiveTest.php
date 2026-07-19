@@ -20,7 +20,7 @@ class AuthDirectiveTest extends TestCase
 
     public function testAuthDirectiveRendersWhenTrue(): void
     {
-        $this->blade->config->setAuth(fn() => true);
+        $this->blade->config->setAuthCallback(fn() => true);
 
         $this->assertSame(
             'Authenticated',
@@ -29,7 +29,7 @@ class AuthDirectiveTest extends TestCase
             )
         );
 
-        $this->blade->config->setAuth(fn() => false);
+        $this->blade->config->setAuthCallback(fn() => false);
 
         $this->assertEmpty($this->renderBlade('@auth Authenticated @endauth'));
     }
@@ -44,14 +44,14 @@ class AuthDirectiveTest extends TestCase
 
     public function testGuestDirectiveRendersWhenFalse(): void
     {
-        $this->blade->config->setAuth(fn() => false);
+        $this->blade->config->setAuthCallback(fn() => false);
 
         $this->assertSame(
             'Guest',
             $this->removeIndentation($this->renderBlade('@guest Guest @endguest'))
         );
 
-        $this->blade->config->setAuth(fn() => true);
+        $this->blade->config->setAuthCallback(fn() => true);
 
         $this->assertEmpty($this->renderBlade('@guest Guest @endguest'));
     }
@@ -61,7 +61,7 @@ class AuthDirectiveTest extends TestCase
         $this->expectException(BladeException::class);
         $this->expectExceptionMessage("User role is admin and is performing dance");
 
-        $this->blade->config->setAuth(
+        $this->blade->config->setAuthCallback(
             fn(string $role, string $action) => throw new BladeException("User role is {$role} and is performing {$action}")
         );
 
@@ -73,7 +73,7 @@ class AuthDirectiveTest extends TestCase
         $this->expectException(BladeException::class);
         $this->expectExceptionMessage("User role is admin and is performing dance");
 
-        $this->blade->config->setAuth(
+        $this->blade->config->setAuthCallback(
             fn(string $role, string $action) => throw new BladeException("User role is {$role} and is performing {$action}")
         );
 
@@ -88,7 +88,7 @@ class AuthDirectiveTest extends TestCase
         $this->expectException(BladeException::class);
         $this->expectExceptionMessage("Guest is looking for cart items and price");
 
-        $this->blade->config->setAuth(
+        $this->blade->config->setAuthCallback(
             fn(string $thing_1, string $thing_2) => throw new BladeException("Guest is looking for {$thing_1} and {$thing_2}")
         );
 
