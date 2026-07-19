@@ -1,6 +1,6 @@
 # Katana
 
-[![Tests](https://github.com/soysudhanshu/katana/actions/workflows/tests.yml/badge.svg)](https://github.com/soysudhanshu/katana/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/github/soysudhanshu/katana/badge.svg?branch=master)](https://coveralls.io/github/soysudhanshu/katana?branch=master)
+[![Tests](https://github.com/katanaphp/blade/actions/workflows/tests.yml/badge.svg)](https://github.com/katanaphp/blade/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/github/katanaphp/blade/badge.svg?branch=master)](https://coveralls.io/github/katanaphp/blade?branch=master)
 
 Katana is a lightweight library that enables you to render Laravel Blade templates in any PHP project, without needing the full Laravel framework. Katana encourages you to use new component syntax, however traditional Blade syntax is also supported for porting from other projects like BladeOne.
 
@@ -25,7 +25,7 @@ Katana uses `.blade.php` extension for templates, traditionally stored in `/view
 You can install the package via composer:
 
 ```bash
-composer require soysudhanshu/katana
+composer require katanaphp/blade
 ```
 
 ### Usage

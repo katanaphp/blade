@@ -1,17 +1,21 @@
 {
-    "name": "soysudhanshu/katana",
-    "description": "Stadalone version of laravel Blade",
+    "name": "katanaphp/blade",
+    "description": "Standalone version of Laravel Blade",
     "type": "library",
     "minimum-stability": "stable",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Blade\\": "src/",
-            "Tests\\": "tests/"
+            "Blade\\": "src/"
         },
         "files": [
             "src/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
     "require": {
         "php": ">=8.0"
