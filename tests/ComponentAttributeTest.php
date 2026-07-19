@@ -2,8 +2,10 @@
 
 namespace Tests;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('component')]
 class ComponentAttributeTest extends TestCase
 {
     use VerifiesOutputTrait;
@@ -59,6 +61,25 @@ class ComponentAttributeTest extends TestCase
         $this->assertSame(
             "<div name='Hello, Taylor'></div>",
             $this->renderBlade('<x-alert name="Hello, {{ $name }}" />', ['name' => 'Taylor'])
+        );
+    }
+
+    public function testMultiLineProps(): void
+    {
+        $this->createComponent(
+            'alert',
+            '@props([
+                "type" => "info",
+                "message" => "Everything is going well",
+                "time" => time(),
+            ])
+            {{ $message }} at {{ $time }}',
+        );
+
+
+        $this->assertStringContainsString(
+            'Everything is going well at ' . time(),
+            $this->renderBlade('<x-alert/>')
         );
     }
 }

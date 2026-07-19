@@ -3,6 +3,9 @@
 namespace Tests;
 
 use Blade\Blade;
+use Blade\Config;
+use Blade\FileSystemViewFinder;
+use Override;
 
 trait VerifiesOutputTrait
 {
@@ -18,13 +21,24 @@ trait VerifiesOutputTrait
             mkdir($this->getTempDirectory());
         }
 
+        $config = new class($this->getTempDirectory()) extends FileSystemViewFinder {
+            protected static int $time = 0;
+
+            #[Override]
+            public function lastModified(string $name): int
+            {
+                /**
+                 * Incrementing number ensures a different
+                 * modified time is returned for each render
+                 * requiring recompilation in every test.
+                 */
+                return self::$time++;
+            }
+        };
 
         $this->blade = new Blade(
-            $this->getTempDirectory(),
-            $this->getTempDirectory()
+            config: (new Config($this->getTempDirectory()))->addViewFinder($config)
         );
-
-        $this->blade->setMode(Blade::MODE_TESTING);
     }
 
 
@@ -32,7 +46,7 @@ trait VerifiesOutputTrait
     {
         $files = array_merge(
             $this->createdFiles,
-            glob("{$this->blade->cachePath}/*.php")
+            glob("{$this->blade->config->cachePath}/*.php")
         );
 
         foreach ($files as $file) {
