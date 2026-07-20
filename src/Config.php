@@ -10,9 +10,6 @@ class Config
     protected array $viewFinders = [];
     protected array $anonymousComponentViewFinders = [];
 
-    /** @var array<string, ViewFinder> namespace => finder */
-    protected array $anonymousComponentNamespaces = [];
-
     public string $cachePath;
 
     protected array $directives = [];
@@ -44,11 +41,33 @@ class Config
         return $this->viewFinders;
     }
 
-    public function addAnonymousComponentViewFinder(ViewFinder $finder): static
+    public function addAnonymousComponentViewFinder(ViewFinder $finder, string $namespace = ''): static
     {
-        $this->anonymousComponentViewFinders[] = $finder;
+        if ($namespace && array_key_exists($namespace, $this->anonymousComponentViewFinders)) {
+            throw new BladeException(
+                sprintf(
+                    Messages::ERROR_MULTIPLE_PATH_FOR_NAMESPACE_NOT_ALLOWED,
+                    $namespace
+                ),
+            );
+        }
+
+        if ($namespace) {
+            $this->anonymousComponentViewFinders[$namespace] = $finder;
+        } else {
+            $this->anonymousComponentViewFinders[] = $finder;
+        }
 
         return $this;
+    }
+
+    /**
+     * Register a path or view finder for anonymous components other than
+     * the default view path.
+     */
+    public function addAnonymousComponentPath(string $path, string $namespace = ''): static
+    {
+        return $this->addAnonymousComponentViewFinder(new FileSystemViewFinder($path), $namespace);
     }
 
     /**
@@ -66,17 +85,6 @@ class Config
     {
         $this->registerDirective('auth', $callback);
         $this->registerDirective('guest', fn(...$params) => !$callback(...$params));
-
-        return $this;
-    }
-
-    /**
-     * Registers a view finder under a component namespace, resolved as
-     * <x-namespace::component />. Re-registering a namespace replaces it.
-     */
-    public function addAnonymousComponentNamespace(string $namespace, ViewFinder $finder): static
-    {
-        $this->anonymousComponentNamespaces[$namespace] = $finder;
 
         return $this;
     }
@@ -100,6 +108,6 @@ class Config
 
     public function getAnonymousComponentNamespace(string $namespace): ?ViewFinder
     {
-        return $this->anonymousComponentNamespaces[$namespace] ?? null;
+        return $this->anonymousComponentViewFinders[$namespace] ?? null;
     }
 }
