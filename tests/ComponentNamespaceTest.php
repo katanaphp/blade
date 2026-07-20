@@ -7,6 +7,9 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 #[Group('component')]
+/**
+ * @group component
+ */
 class ComponentNamespaceTest extends TestCase
 {
     use VerifiesOutputTrait;
@@ -56,7 +59,7 @@ class ComponentNamespaceTest extends TestCase
     public function testRendersComponentFromNamespace(): void
     {
         $directory = $this->createNamespacedComponent('acme', 'alert', 'Namespaced alert');
-        $this->blade->addAnonymousComponentNamespace('acme', $directory);
+        $this->blade->addAnonymousComponentPath($directory, 'acme');
 
         $this->assertSame(
             'Namespaced alert',
@@ -71,7 +74,7 @@ class ComponentNamespaceTest extends TestCase
             'alert',
             '<div class="{{ $type }}">{{ $slot }}</div>',
         );
-        $this->blade->addAnonymousComponentNamespace('acme', $directory);
+        $this->blade->addAnonymousComponentPath($directory, 'acme');
 
         $this->assertSame(
             '<div class="warning">Body</div>',
@@ -83,7 +86,7 @@ class ComponentNamespaceTest extends TestCase
     {
         $directory = $this->createNamespacedComponent('acme', 'forms.input', 'Namespaced input');
         $this->createNamespacedComponent('acme', 'slider.index', 'Namespaced slider');
-        $this->blade->addAnonymousComponentNamespace('acme', $directory);
+        $this->blade->addAnonymousComponentPath($directory, 'acme');
 
         $this->assertSame('Namespaced input', $this->renderBlade('<x-acme::forms.input />'));
         $this->assertSame('Namespaced slider', $this->renderBlade('<x-acme::slider />'));
@@ -92,7 +95,7 @@ class ComponentNamespaceTest extends TestCase
     public function testApplicationComponentDoesNotShadowNamespacedComponent(): void
     {
         $directory = $this->createNamespacedComponent('acme', 'alert', 'Namespaced alert');
-        $this->blade->addAnonymousComponentNamespace('acme', $directory);
+        $this->blade->addAnonymousComponentPath($directory, 'acme');
 
         // An application component of the same name must not be picked up for the
         // namespaced tag, and must still resolve for the plain tag.
@@ -106,9 +109,9 @@ class ComponentNamespaceTest extends TestCase
     {
         // "alert" exists only as an application component, never in the namespace.
         $this->createComponent('alert', 'Application alert');
-        $this->blade->addAnonymousComponentNamespace(
-            'isolated',
+        $this->blade->addAnonymousComponentPath(
             $this->createNamespacedComponent('isolated', 'other', 'other'),
+            'isolated',
         );
 
         $this->assertNotSame(
@@ -130,9 +133,7 @@ class ComponentNamespaceTest extends TestCase
     public function testNamespaceAcceptsACustomViewFinder(): void
     {
         $customFinder = new class(['alert' => 'Finder alert']) extends \Blade\ViewFinder {
-            public function __construct(private array $views)
-            {
-            }
+            public function __construct(private array $views) {}
 
             public function viewExists(string $name): bool
             {
@@ -150,7 +151,7 @@ class ComponentNamespaceTest extends TestCase
             }
         };
 
-        $this->blade->addAnonymousComponentNamespace('acme', $customFinder);
+        $this->blade->addAnonymousComponentViewFinder($customFinder, 'acme');
 
         $this->assertSame('Finder alert', $this->renderBlade('<x-acme::alert />'));
     }
