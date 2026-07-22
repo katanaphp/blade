@@ -140,8 +140,10 @@ final class Blade
     public function compile(string | Component $view): string
     {
         if (!$this->viewExists($view)) {
+            $componentName = is_string($view) ? $view : implode('::', array_filter([$view->namespace, $view->name]));
+
             throw new BladeException(
-                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view)
+                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $componentName)
             );
         }
 
