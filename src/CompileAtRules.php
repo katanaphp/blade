@@ -380,6 +380,11 @@ class CompileAtRules
             "->include{$expression}; ?>";
     }
 
+    protected function compileIncludeIsolated(string $expression): string
+    {
+        return "<?php echo \$template_renderer->include{$expression}; ?>";
+    }
+
     protected function compileIncludeIf(string $expression): string
     {
         return "<?php echo \$template_renderer->withDefault(get_defined_vars())" .

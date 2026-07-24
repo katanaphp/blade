@@ -231,4 +231,48 @@ class IncludeDirectiveTest extends TestCase
             )
         );
     }
+
+    public function testIsolatedIncludesView(): void
+    {
+        $template = "Include isolated view";
+
+        $this->createTemporaryBladeFile(
+            $template,
+            'include-isolated'
+        );
+
+        $this->assertSame(
+            $template,
+            $this->renderBlade('@includeIsolated("include-isolated")')
+        );
+    }
+
+    public function testIsolatedDoesNotReceiveContextFromParent(): void
+    {
+        $this->createTemporaryBladeFile(
+            'Hello, {{ $name ?? "Kitty" }}',
+            'include-isolated',
+        );
+
+        $this->assertSame(
+            'Hello, Kitty',
+            $this->renderBlade(
+                "@includeIsolated('include-isolated')",
+                ["name" => "Jhon"]
+            )
+        );
+    }
+
+    public function testIsolatedReceivesPassedData(): void
+    {
+        $this->createTemporaryBladeFile(
+            "Hello, {{ \$name }}",
+            "include-isolated",
+        );
+
+        $this->assertSame(
+            'Hello, Maria',
+            $this->renderBlade("@includeIsolated('include-isolated', ['name' => 'Maria'])")
+        );
+    }
 }
