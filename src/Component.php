@@ -19,13 +19,14 @@ abstract class Component
     {
         $this->attributes = new Attributes($data);
 
-        if ($this->namespace) {
+        if (strlen($this->namespace) !== 0) {
             $this->resolveFromNamespace();
             return;
         }
 
         $names = [
             "components.{$this->name}",
+            "components.{$this->name}.{$this->name}",
             "components.{$this->name}.index",
         ];
 
@@ -57,8 +58,8 @@ abstract class Component
             $anonymousNames = [$this->name, $this->name . '.index'];
 
             foreach ($anonymousNames as $name) {
-                if ($viewFinder->viewExists($name)) {
-                    $this->viewFinder = $viewFinder;
+                if ($viewFinder['finder']->viewExists($name)) {
+                    $this->viewFinder = $viewFinder['finder'];
                     $this->resolvedName = $name;
                     $this->exists = true;
 
@@ -84,7 +85,7 @@ abstract class Component
             return;
         }
 
-        foreach ([$component, "{$component}.index"] as $name) {
+        foreach ([$component, "{$component}.{$component}", "{$component}.index"] as $name) {
             if (!$viewFinder->viewExists($name)) {
                 continue;
             }

@@ -70,6 +70,21 @@ trait VerifiesOutputTrait
 
         is_dir($directory) && rmdir($directory);
     }
+    
+    protected function cleanUpGeneratedFiles(): void
+    {
+        $files = array_merge(
+            $this->createdFiles,
+            glob("{$this->blade->config->cachePath}/*.php")
+        );
+
+        foreach ($files as $file) {
+            if (!file_exists($file)) {
+                continue;
+            }
+            unlink($file);
+        }
+    }
 
     private function getTempDirectory(): string
     {
@@ -140,7 +155,11 @@ trait VerifiesOutputTrait
 
     public function createComponent(string $name, string $template, string $namespace = '')
     {
-        $directory = $namespace ? $this->getNamespaceDir($namespace) : $this->getTempDirectory() . "/components";
+        $directory = $this->getTempDirectory() . "/components";
+
+        if (strlen($namespace) > 0) {
+            $directory = $this->getNamespaceDir($namespace);
+        }
 
         $name = $this->createTemporaryBladeFile(
             $template,
