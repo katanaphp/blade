@@ -67,13 +67,10 @@ class ConfigTest extends TestCase
 
         $this->assertCount(1, $config->getAnonymousComponentViewFinders());
 
-        /**
-         * @var FileSystemViewFinder
-         */
         $viewFinder = $config->getAnonymousComponentViewFinders()[0];
 
-        $this->assertInstanceOf(FileSystemViewFinder::class, $viewFinder);
-        $this->assertSame($componentDirectory, $viewFinder->basePath);
+        $this->assertInstanceOf(FileSystemViewFinder::class, $viewFinder['finder']);
+        $this->assertSame($componentDirectory, $viewFinder['finder']->basePath);
     }
 
     /**
@@ -94,7 +91,10 @@ class ConfigTest extends TestCase
         $finders = $config->getAnonymousComponentViewFinders();
 
         $this->assertCount(count($paths), $finders);
-        $this->assertSame($paths, array_column($finders, 'basePath'));
+        $this->assertSame(
+            $paths,
+            array_column(array_column($finders, 'finder'), 'basePath')
+        );
     }
 
     /**
@@ -114,8 +114,8 @@ class ConfigTest extends TestCase
         $finders = $config->getAnonymousComponentViewFinders();
 
         $this->assertCount(1, $finders);
-        $this->assertArrayHasKey($namespace, $finders);
-        $this->assertSame($componentDirectory, $finders[$namespace]->basePath);
+        $this->assertSame($namespace, $finders[0]['namespace']);
+        $this->assertSame($componentDirectory, $finders[0]['finder']->basePath);
     }
 
     /**

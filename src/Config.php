@@ -5,9 +5,17 @@ namespace Blade;
 use Blade\Exceptions\BladeException;
 use Closure;
 
+/**
+ *
+ * @psalm-type ComponentFinder = array{namespace: string, finder: ViewFinder}
+ */
 class Config
 {
     protected array $viewFinders = [];
+
+    /**
+     * @var ComponentFinder[]
+     */
     protected array $anonymousComponentViewFinders = [];
 
     public string $cachePath;
@@ -43,7 +51,7 @@ class Config
 
     public function addAnonymousComponentViewFinder(ViewFinder $finder, string $namespace = ''): static
     {
-        if ($namespace && array_key_exists($namespace, $this->anonymousComponentViewFinders)) {
+        if ($namespace && $this->getAnonymousComponentNamespace($namespace)) {
             throw new BladeException(
                 sprintf(
                     Messages::ERROR_MULTIPLE_PATH_FOR_NAMESPACE_NOT_ALLOWED,
@@ -52,11 +60,10 @@ class Config
             );
         }
 
-        if ($namespace) {
-            $this->anonymousComponentViewFinders[$namespace] = $finder;
-        } else {
-            $this->anonymousComponentViewFinders[] = $finder;
-        }
+        $this->anonymousComponentViewFinders[] = [
+            'namespace' => $namespace,
+            'finder' => $finder,
+        ];
 
         return $this;
     }
@@ -71,7 +78,7 @@ class Config
     }
 
     /**
-     * @return ViewFinder[]
+     * @return ComponentFinder[]
      */
     public function getAnonymousComponentViewFinders(): array
     {
@@ -108,6 +115,12 @@ class Config
 
     public function getAnonymousComponentNamespace(string $namespace): ?ViewFinder
     {
-        return $this->anonymousComponentViewFinders[$namespace] ?? null;
+        foreach ($this->anonymousComponentViewFinders as $finder) {
+            if ($namespace === $finder['namespace']) {
+                return $finder['finder'];
+            }
+        }
+
+        return null;
     }
 }
