@@ -190,6 +190,7 @@ Template inheritance allows you to create layouts by defining a master template 
 | `@production`    |             | ✅     |
 | `@env`           |             | ✅     |
 | `@include`       |             | ✅     |
+| `@includeIsolated`       |             | ✅     |
 | `@session`       |             | ❌     |
 | `@selected`      |             | ✅     |
 | `@checked`       |             | ✅     |
