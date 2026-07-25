@@ -97,4 +97,18 @@ class BladeConfigTest extends BladeTestCase
         $this->assertInstanceOf(FileSystemViewFinder::class, $viewFinder);
         $this->assertSame($this->getTempDirectory(), $viewFinder->basePath);
     }
+
+    /**
+     * Constructor paths are only reachable through the config, Blade
+     * itself no longer carries a copy of either one.
+     */
+    public function testConstructorPathsAreExposedThroughConfig(): void
+    {
+        $blade = new Blade(__DIR__ . '/view-path/', __DIR__ . '/cache/');
+
+        $this->assertSame(__DIR__ . '/cache', $blade->config->cachePath);
+
+        $this->assertFalse(property_exists($blade, 'cachePath'));
+        $this->assertFalse(property_exists($blade, 'viewPath'));
+    }
 }

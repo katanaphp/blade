@@ -22,8 +22,6 @@ final class Blade
     public ComponentRenderer $componentRenderer;
     public TemplateInheritanceRenderer $templateRenderer;
 
-    public string $cachePath;
-
     public Config $config;
 
     /**
