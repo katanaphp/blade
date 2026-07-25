@@ -145,10 +145,9 @@ final class Blade
             return $identifier;
         }
 
-        $complied = (new Compiler($this->getViewContents($view), $this))->compile();
-        $complied .= "<?php ##PATH  ## ?>";
+        $compiled = (new Compiler($this->getViewContents($view), $this))->compile();
 
-        $this->saveCache($identifier, $complied);
+        $this->saveCache($identifier, $compiled);
 
         return $identifier;
     }
@@ -229,7 +228,7 @@ final class Blade
         return null;
     }
 
-    public function viewExists(string | Component $view, bool $isComponent = false): bool
+    public function viewExists(string | Component $view): bool
     {
         if ($view instanceof Component) {
             return $view->viewExists();
