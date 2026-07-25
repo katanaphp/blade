@@ -103,6 +103,15 @@ abstract class Component
         return $this->exists;
     }
 
+    public function qualifiedName(): string
+    {
+        if ($this->namespace === '') {
+            return $this->name;
+        }
+
+        return sprintf('%s::%s', $this->namespace, $this->name);
+    }
+
     public function getContents(): string
     {
         return $this->viewFinder->getContents($this->resolvedName);
