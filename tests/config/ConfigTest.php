@@ -77,6 +77,12 @@ class ConfigTest extends TestCase
             {
                 throw new Exception('Not implemented');
             }
+
+            #[Override]
+            public function identity(string $name): string
+            {
+                throw new Exception('Not implemented');
+            }
         };
     }
 }
