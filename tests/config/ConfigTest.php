@@ -3,7 +3,9 @@
 namespace Tests\Config;
 
 use Blade\Config;
+use Blade\Exceptions\BladeException;
 use Blade\FileSystemViewFinder;
+use Blade\Messages;
 use Blade\ViewFinder;
 use Exception;
 use Override;
@@ -53,6 +55,89 @@ class ConfigTest extends TestCase
         $this->assertEquals($finders, $config->getViewFinders());
     }
 
+    public function testAddAnonymousComponentPathRegistersFileSystemViewFinder(): void
+    {
+        $componentDirectory = __DIR__ . '/components';
+
+        $config = $this->getConfig();
+
+        $this->assertEmpty($config->getAnonymousComponentViewFinders());
+
+        $config = $this->getConfig()->addAnonymousComponentPath($componentDirectory);
+
+        $this->assertCount(1, $config->getAnonymousComponentViewFinders());
+
+        $viewFinder = $config->getAnonymousComponentViewFinders()[0];
+
+        $this->assertInstanceOf(FileSystemViewFinder::class, $viewFinder['finder']);
+        $this->assertSame($componentDirectory, $viewFinder['finder']->basePath);
+    }
+
+    /**
+     * @depends testAddAnonymousComponentPathRegistersFileSystemViewFinder
+     */
+    public function testAddAnonymousComponentPathAppendsMultipleFinders(): void
+    {
+        $paths = [__DIR__, __DIR__ . '/../sub-components'];
+
+        $config = $this->getConfig();
+
+        $this->assertEmpty($config->getAnonymousComponentViewFinders());
+
+        foreach ($paths as $path) {
+            $config->addAnonymousComponentPath($path);
+        }
+
+        $finders = $config->getAnonymousComponentViewFinders();
+
+        $this->assertCount(count($paths), $finders);
+        $this->assertSame(
+            $paths,
+            array_column(array_column($finders, 'finder'), 'basePath')
+        );
+    }
+
+    /**
+     * @depends testAddAnonymousComponentPathRegistersFileSystemViewFinder
+     */
+    public function testAddAnonymousComponentPathAddsNamespaceAsKey(): void
+    {
+        $namespace = 'katana';
+        $componentDirectory = __DIR__ . "/components-{$namespace}";
+
+        $config = $this->getConfig();
+
+        $this->assertEmpty($config->getAnonymousComponentViewFinders());
+
+        $config->addAnonymousComponentPath($componentDirectory, $namespace);
+
+        $finders = $config->getAnonymousComponentViewFinders();
+
+        $this->assertCount(1, $finders);
+        $this->assertSame($namespace, $finders[0]['namespace']);
+        $this->assertSame($componentDirectory, $finders[0]['finder']->basePath);
+    }
+
+    /**
+     * @depends testAddAnonymousComponentPathAddsNamespaceAsKey
+     */
+    public function testAddAnonymousComponentPathThrowsExceptionWhenMultipleEntriesAddedForSameNamespace(): void
+    {
+        $namespace = "katana";
+
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(sprintf(
+            Messages::ERROR_MULTIPLE_PATH_FOR_NAMESPACE_NOT_ALLOWED,
+            $namespace
+        ));
+
+
+        $config = $this->getConfig();
+
+        $config->addAnonymousComponentPath(__DIR__, $namespace);
+        $config->addAnonymousComponentPath(__DIR__ . '/another', $namespace);
+    }
+
     protected function getConfig(string $cachePath = '/'): Config
     {
         return new Config($cachePath);
@@ -74,6 +159,12 @@ class ConfigTest extends TestCase
 
             #[Override]
             public function getContents(string $name): string
+            {
+                throw new Exception('Not implemented');
+            }
+
+            #[Override]
+            public function identity(string $name): string
             {
                 throw new Exception('Not implemented');
             }

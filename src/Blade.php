@@ -117,13 +117,20 @@ final class Blade
      * Register a path or view finder for anonymous components other than
      * the default view path.
      */
-    public function addAnonymousComponentPath(string|ViewFinder $path): self
+    public function addAnonymousComponentPath(string|ViewFinder $path, string $namespace = ''): self
     {
         if (is_string($path)) {
-            $path = new FileSystemViewFinder($path);
+            $this->config->addAnonymousComponentPath($path, $namespace);
+        } else {
+            $this->config->addAnonymousComponentViewFinder($path, $namespace);
         }
 
-        $this->config->addAnonymousComponentViewFinder($path);
+        return $this;
+    }
+
+    public function addAnonymousComponentViewFinder(ViewFinder $finder, string $namespace = ''): self
+    {
+        $this->config->addAnonymousComponentViewFinder($finder, $namespace);
 
         return $this;
     }
@@ -132,7 +139,7 @@ final class Blade
     {
         if (!$this->viewExists($view)) {
             throw new BladeException(
-                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view)
+                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $this->getViewName($view))
             );
         }
 
@@ -143,19 +150,53 @@ final class Blade
             return $identifier;
         }
 
-        $complied = (new Compiler($this->getViewContents($view), $this))->compile();
-        $complied .= "<?php ##PATH  ## ?>";
+        $compiled = (new Compiler($this->getViewContents($view), $this))->compile();
 
-        $this->saveCache($identifier, $complied);
+        $this->saveCache($identifier, $compiled);
 
         return $identifier;
     }
 
     public function getViewIdentifier(string | Component $view): string
     {
-        $name = is_string($view) ? $view : $view->name;
+        return hash(
+            'sha1',
+            sprintf(
+                '%s|%s|%d',
+                $this->getIdentity($view),
+                $this->getViewName($view),
+                $this->getLastModified($view),
+            ),
+        );
+    }
 
-        return hash('sha1', $name . $this->getLastModified($view));
+    protected function getViewName(string | Component $view): string
+    {
+        if ($view instanceof Component) {
+            return $view->qualifiedName();
+        }
+
+        return $view;
+    }
+
+    /**
+     * Resolves the identity of the source backing a view, so that two
+     * different sources answering to the same name never share a
+     * compiled view.
+     */
+    protected function getIdentity(string | Component $view): string
+    {
+        if ($view instanceof Component) {
+            return $view->identity();
+        }
+
+        $finder = $this->resolveFinder($view);
+
+        if (!$finder) {
+            throw new BladeException(sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view));
+        }
+
+        return $finder->identity($view);
     }
 
     protected function getLastModified(string | Component $view): int
@@ -227,7 +268,7 @@ final class Blade
         return null;
     }
 
-    public function viewExists(string | Component $view, bool $isComponent = false): bool
+    public function viewExists(string | Component $view): bool
     {
         if ($view instanceof Component) {
             return $view->viewExists();
