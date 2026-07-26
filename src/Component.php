@@ -77,4 +77,9 @@ abstract class Component
     {
         return $this->viewFinder->lastModified($this->resolvedName);
     }
+
+    public function identity(): string
+    {
+        return $this->viewFinder->identity($this->resolvedName);
+    }
 }

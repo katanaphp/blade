@@ -154,7 +154,35 @@ final class Blade
     {
         $name = is_string($view) ? $view : $view->name;
 
-        return hash('sha1', $name . $this->getLastModified($view));
+        return hash(
+            'sha1',
+            sprintf(
+                '%s|%s|%d',
+                $this->getIdentity($view),
+                $name,
+                $this->getLastModified($view),
+            ),
+        );
+    }
+
+    /**
+     * Resolves the identity of the source backing a view, so that two
+     * different sources answering to the same name never share a
+     * compiled view.
+     */
+    protected function getIdentity(string | Component $view): string
+    {
+        if ($view instanceof Component) {
+            return $view->identity();
+        }
+
+        $finder = $this->resolveFinder($view);
+
+        if (!$finder) {
+            throw new BladeException(sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view));
+        }
+
+        return $finder->identity($view);
     }
 
     protected function getLastModified(string | Component $view): int
