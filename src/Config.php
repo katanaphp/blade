@@ -5,9 +5,17 @@ namespace Blade;
 use Blade\Exceptions\BladeException;
 use Closure;
 
+/**
+ *
+ * @psalm-type ComponentFinder = array{namespace: string, finder: ViewFinder}
+ */
 class Config
 {
     protected array $viewFinders = [];
+
+    /**
+     * @var ComponentFinder[]
+     */
     protected array $anonymousComponentViewFinders = [];
 
     public string $cachePath;
@@ -41,15 +49,36 @@ class Config
         return $this->viewFinders;
     }
 
-    public function addAnonymousComponentViewFinder(ViewFinder $finder): static
+    public function addAnonymousComponentViewFinder(ViewFinder $finder, string $namespace = ''): static
     {
-        $this->anonymousComponentViewFinders[] = $finder;
+        if ($namespace && $this->getAnonymousComponentNamespace($namespace)) {
+            throw new BladeException(
+                sprintf(
+                    Messages::ERROR_MULTIPLE_PATH_FOR_NAMESPACE_NOT_ALLOWED,
+                    $namespace
+                ),
+            );
+        }
+
+        $this->anonymousComponentViewFinders[] = [
+            'namespace' => $namespace,
+            'finder' => $finder,
+        ];
 
         return $this;
     }
 
     /**
-     * @return ViewFinder[]
+     * Register a path or view finder for anonymous components other than
+     * the default view path.
+     */
+    public function addAnonymousComponentPath(string $path, string $namespace = ''): static
+    {
+        return $this->addAnonymousComponentViewFinder(new FileSystemViewFinder($path), $namespace);
+    }
+
+    /**
+     * @return ComponentFinder[]
      */
     public function getAnonymousComponentViewFinders(): array
     {
@@ -82,5 +111,16 @@ class Config
     public function getDirective(string $name): ?callable
     {
         return $this->directives[$name] ?? null;
+    }
+
+    public function getAnonymousComponentNamespace(string $namespace): ?ViewFinder
+    {
+        foreach ($this->anonymousComponentViewFinders as $finder) {
+            if ($namespace === $finder['namespace']) {
+                return $finder['finder'];
+            }
+        }
+
+        return null;
     }
 }
