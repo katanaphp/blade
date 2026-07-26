@@ -383,6 +383,11 @@ class ComponentNamespaceTest extends TestCase
             {
                 return $this->views[$name] ?? '';
             }
+
+            public function identity(string $name): string
+            {
+                return "in-memory:{$name}";
+            }
         };
 
         $this->blade->addAnonymousComponentViewFinder($customFinder, 'acme');

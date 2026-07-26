@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use Blade\Exceptions\BladeException;
+use Blade\Messages;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -390,5 +392,18 @@ class ComponentTagsTest extends TestCase
             'Long message',
             $this->renderBlade('<x-alert :$messageLength />', ['messageLength' => 'Long message'])
         );
+    }
+
+    public function testThrowsExceptionNamingTheMissingComponent()
+    {
+        /**
+         * A component reaches compile() as a Component rather
+         * than a name, so the missing view message has to read
+         * the name off it instead of casting it to a string.
+         */
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(sprintf(Messages::ERROR_VIEW_NOT_FOUND, 'missing-alert'));
+
+        $this->renderBlade('<x-missing-alert />');
     }
 }

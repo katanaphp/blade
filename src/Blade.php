@@ -138,10 +138,8 @@ final class Blade
     public function compile(string | Component $view): string
     {
         if (!$this->viewExists($view)) {
-            $componentName = is_string($view) ? $view : ($view->namespace === '' ? $view->name : sprintf("%s::%s", $view->namespace, $view->name));
-
             throw new BladeException(
-                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $componentName)
+                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $this->getViewName($view))
             );
         }
 
@@ -161,17 +159,24 @@ final class Blade
 
     public function getViewIdentifier(string | Component $view): string
     {
-        $name = is_string($view) ? $view : ($view->namespace === '' ? $view->name : sprintf("%s::%s", $view->namespace, $view->name));
-
         return hash(
             'sha1',
             sprintf(
                 '%s|%s|%d',
                 $this->getIdentity($view),
-                $name,
+                $this->getViewName($view),
                 $this->getLastModified($view),
             ),
         );
+    }
+
+    protected function getViewName(string | Component $view): string
+    {
+        if ($view instanceof Component) {
+            return $view->qualifiedName();
+        }
+
+        return $view;
     }
 
     /**
