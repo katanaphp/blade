@@ -138,7 +138,7 @@ final class Blade
             );
         }
 
-        $identifier = $this->getViewIdentifier($view);
+        $identifier = $this->getCacheKey($view);
         $compiledPath = $this->getCachedViewPath($identifier);
 
         if (file_exists($compiledPath)) {
@@ -153,39 +153,25 @@ final class Blade
         return $identifier;
     }
 
-    public function getViewIdentifier(string | Component $view): string
+    protected function getCacheKey(string | Component $view): string
     {
-        $name = is_string($view) ? $view : $view->name;
+        $finderIdentifier = '';
+
+        if ($view instanceof Component) {
+            $finderIdentifier = $view->finderIdentifier();
+        } else {
+            $finderIdentifier = $this->resolveFinder($view)?->identifier();
+        }
 
         return hash(
             'sha1',
             sprintf(
                 '%s|%s|%d',
-                $this->getIdentity($view),
-                $name,
+                $finderIdentifier,
+                is_string($view) ? $view : $view->name,
                 $this->getLastModified($view),
             ),
         );
-    }
-
-    /**
-     * Resolves the identity of the source backing a view, so that two
-     * different sources answering to the same name never share a
-     * compiled view.
-     */
-    protected function getIdentity(string | Component $view): string
-    {
-        if ($view instanceof Component) {
-            return $view->identity();
-        }
-
-        $finder = $this->resolveFinder($view);
-
-        if (!$finder) {
-            throw new BladeException(sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view));
-        }
-
-        return $finder->identity($view);
     }
 
     protected function getLastModified(string | Component $view): int

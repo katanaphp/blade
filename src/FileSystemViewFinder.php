@@ -44,13 +44,9 @@ class FileSystemViewFinder extends ViewFinder
     }
 
     #[Override]
-    public function identity(string $name): string
+    public function identifier(): string
     {
-        if (!$this->viewExists($name)) {
-            throw new BladeException(sprintf(Messages::ERROR_VIEW_NOT_FOUND, $name));
-        }
-
-        return $this->getFilePath($name);
+        return $this->basePath;
     }
 
     protected function getFilePath(string $viewName): string

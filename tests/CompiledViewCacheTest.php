@@ -75,15 +75,10 @@ class CompiledViewCacheTest extends BladeTestCase
 
         $blade = new Blade("{$this->basePath}/views", "{$this->basePath}/cache");
 
-        $identifier = $blade->getViewIdentifier('page');
-
         $this->assertSame('First', $blade->render('page')->render());
-        $this->assertSame($identifier, $blade->getViewIdentifier('page'));
         $this->assertCount(1, glob("{$this->basePath}/cache/*.php"));
 
         $this->createView('views/page.blade.php', 'Second', time() + 10);
-
-        $this->assertNotSame($identifier, $blade->getViewIdentifier('page'));
         $this->assertSame('Second', $blade->render('page')->render());
     }
 

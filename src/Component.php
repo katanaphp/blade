@@ -78,8 +78,8 @@ abstract class Component
         return $this->viewFinder->lastModified($this->resolvedName);
     }
 
-    public function identity(): string
+    public function finderIdentifier(): string
     {
-        return $this->viewFinder->identity($this->resolvedName);
+        return $this->viewFinder->identifier();
     }
 }
