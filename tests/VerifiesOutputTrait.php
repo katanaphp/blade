@@ -21,7 +21,11 @@ trait VerifiesOutputTrait
             mkdir($this->getTempDirectory());
         }
 
-        $config = new class($this->getTempDirectory()) extends FileSystemViewFinder {
+        if (!is_dir($this->getCacheDirectory())) {
+            mkdir($this->getCacheDirectory());
+        }
+
+        $viewFinder = new class($this->getTempDirectory()) extends FileSystemViewFinder {
             protected static int $time = 0;
 
             #[Override]
@@ -36,28 +40,35 @@ trait VerifiesOutputTrait
             }
         };
 
-        $this->blade = new Blade(
-            config: (new Config($this->getTempDirectory()))->addViewFinder($config)
-        );
+        $config = (new Config($this->getCacheDirectory()));
+        $config->addViewFinder($viewFinder);
+
+        $this->blade = new Blade(config: $config);
     }
 
 
     public function tearDown(): void
     {
-        $files = array_merge(
-            $this->createdFiles,
-            glob("{$this->blade->config->cachePath}/*.php")
-        );
-
-        foreach ($files as $file) {
-            if (!file_exists($file)) {
-                continue;
-            }
-            unlink($file);
-        }
-
+        $this->deleteDirectory($this->getCacheDirectory());
+        $this->deleteDirectory($this->getTempDirectory());
 
         parent::tearDown();
+    }
+
+    protected function deleteDirectory(string $directory): void
+    {
+        $directory = rtrim($directory, '/');
+        $files = glob("$directory/*");
+
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            } elseif (is_dir($file)) {
+                $this->deleteDirectory($file);
+            }
+        }
+
+        is_dir($directory) && rmdir($directory);
     }
 
     private function getTempDirectory(): string
@@ -142,5 +153,10 @@ trait VerifiesOutputTrait
     protected function removeIndentation(string $input): string
     {
         return preg_replace('/\s+/', ' ', trim($input));
+    }
+
+    protected function getCacheDirectory(): string
+    {
+        return $this->getTempDirectory() . '/.cache';
     }
 }
