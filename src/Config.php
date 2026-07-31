@@ -51,7 +51,7 @@ class Config
 
     public function addAnonymousComponentViewFinder(ViewFinder $finder, string $namespace = ''): static
     {
-        if ($namespace && $this->getAnonymousComponentNamespace($namespace)) {
+        if ($namespace && $this->getAnonymousComponentViewFinder($namespace)) {
             throw new BladeException(
                 sprintf(
                     Messages::ERROR_MULTIPLE_PATH_FOR_NAMESPACE_NOT_ALLOWED,
@@ -113,7 +113,7 @@ class Config
         return $this->directives[$name] ?? null;
     }
 
-    public function getAnonymousComponentNamespace(string $namespace): ?ViewFinder
+    public function getAnonymousComponentViewFinder(string $namespace): ?ViewFinder
     {
         foreach ($this->anonymousComponentViewFinders as $finder) {
             if ($namespace === $finder['namespace']) {

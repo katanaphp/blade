@@ -79,7 +79,7 @@ abstract class Component
         $namespace = $this->namespace;
         $component = $this->name;
 
-        $viewFinder = $this->engine->config->getAnonymousComponentNamespace($namespace);
+        $viewFinder = $this->engine->config->getAnonymousComponentViewFinder($namespace);
 
         if (is_null($viewFinder) || $component === '') {
             return;

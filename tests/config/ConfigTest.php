@@ -100,7 +100,7 @@ class ConfigTest extends TestCase
     /**
      * @depends testAddAnonymousComponentPathRegistersFileSystemViewFinder
      */
-    public function testAddAnonymousComponentPathAddsNamespaceAsKey(): void
+    public function testAddAnonymousComponentPathAddsNamespace(): void
     {
         $namespace = 'katana';
         $componentDirectory = __DIR__ . "/components-{$namespace}";
@@ -119,7 +119,7 @@ class ConfigTest extends TestCase
     }
 
     /**
-     * @depends testAddAnonymousComponentPathAddsNamespaceAsKey
+     * @depends testAddAnonymousComponentPathAddsNamespace
      */
     public function testAddAnonymousComponentPathThrowsExceptionWhenMultipleEntriesAddedForSameNamespace(): void
     {
