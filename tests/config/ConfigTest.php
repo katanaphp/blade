@@ -138,6 +138,18 @@ class ConfigTest extends TestCase
         $config->addAnonymousComponentPath(__DIR__ . '/another', $namespace);
     }
 
+    public function testAllowsRegistrationOfMultipleAnonymousComponentPathsWithoutNamespaces(): void
+    {
+
+        $config = $this->getConfig();
+
+        $config
+            ->addAnonymousComponentPath(__DIR__ . '/primary')
+            ->addAnonymousComponentPath(__DIR__ . '/secondary');
+
+        $this->assertTrue(true);
+    }
+
     protected function getConfig(string $cachePath = '/'): Config
     {
         return new Config($cachePath);
