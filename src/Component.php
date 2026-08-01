@@ -12,7 +12,7 @@ abstract class Component
     public array $slots = [];
 
     protected bool $exists = false;
-    protected string $resolvedName;
+    public string $resolvedName;
     protected ViewFinder $viewFinder;
 
     public function __construct(public string $name, public array $data, protected Blade $engine, public bool $componentDirectiveMode = false)

@@ -168,7 +168,7 @@ final class Blade
             sprintf(
                 '%s|%s|%d',
                 $finderIdentifier,
-                is_string($view) ? $view : $view->name,
+                is_string($view) ? $view : $view->resolvedName,
                 $this->getLastModified($view),
             ),
         );
