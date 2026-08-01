@@ -39,7 +39,7 @@ class ComponentRenderer
      */
     public function beginSlot(string $tag, $data = [])
     {
-        $name = $data['name'];
+        $name = $data['name'] ?? $tag;
 
         $this->slots[$name] = (object) [
             'name' => $name,

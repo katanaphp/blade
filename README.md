@@ -18,7 +18,8 @@ Katana uses `.blade.php` extension for templates, traditionally stored in `/view
 | Additional Form Attributes   | ✅     | ❌       |
 | Pipes                        | 🟨     | ✅       |
 
-> [!NOTE] Pipes are now natively supported in PHP 8.5.
+> [!NOTE]
+> Pipes are now natively supported in PHP 8.5.
 
 ## Getting Starting
 
@@ -176,7 +177,7 @@ Template inheritance allows you to create layouts by defining a master template 
 | `Name slots {{ $customSlot }}`                       |             | ✅     |
 | `$slot->isEmpty()`                                   |             | ✅     |
 | `$slot->hasActualContent()`                          |             | ✅     |
-| `Scoped Slots`                                       |             | ❌     |
+| `Scoped Slots`                                       |             | ✅     |
 | `Slot Attributes`                                    |             | ✅     |
 | `Dynamic Components`                                 |             | ❌     |
 | `Anonymous Index Components`                         |             | ✅     |
