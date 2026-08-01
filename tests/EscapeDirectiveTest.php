@@ -16,6 +16,26 @@ class EscapeDirectiveTest extends TestCase
         );
     }
 
+    public function testEscapesMultilineOutput(): void
+    {
+        $directive = "@{{\n\$name\n}}";
+
+        $this->assertSame(
+            substr($directive, 1),
+            $this->renderBlade($directive)
+        );
+    }
+
+    public function testEscapesMultilineDirectives(): void
+    {
+        $directive = "@@if(\ntrue &&\n false\n)\n";
+
+        $this->assertSame(
+            substr($directive, 1),
+            $this->renderBlade($directive)
+        );
+    }
+
     public function testAtEscapeDirectiveWithHtml(): void
     {
         $this->assertSame(
