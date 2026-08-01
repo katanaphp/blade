@@ -163,7 +163,7 @@ class Compiler
                 return substr($directive, 1);
             }
 
-            return "<?php echo \Blade\\e($expression); ?>";
+            return "<?php echo \Blade\\e($expression, \$__env->config); ?>";
         }, $template);
     }
 

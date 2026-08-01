@@ -3,10 +3,36 @@
 namespace Blade;
 
 use Blade\Interfaces\HtmlableInterface;
+use ReflectionFunction;
 use Stringable;
 
-function e($value): string
+function e($value, ?Config $config = null): string
 {
+    if (is_object($value) && $config && $config->stringables) {
+        $objectType = get_class($value);
+
+        foreach ($config->stringables as $callback) {
+            $reflector = new ReflectionFunction($callback);
+            $arguments = $reflector->getParameters();
+
+            if (count($arguments) === 0) {
+                continue;
+            }
+
+            $argument = $arguments[0];
+
+            if (
+                $argument->hasType() &&
+                (is_subclass_of($value, $argument->getType()->getName()) ||
+                    $objectType === $argument->getType()->getName()
+                )
+            ) {
+                $value = $callback($value);
+                break;
+            }
+        }
+    }
+
     if ($value === null) {
         return '';
     }
