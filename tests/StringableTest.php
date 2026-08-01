@@ -5,6 +5,7 @@ namespace Tests;
 use Blade\FileSystemViewFinder;
 use Blade\ViewFinder;
 use DateTime;
+use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
 
 class StringableTest extends TestCase
@@ -26,6 +27,19 @@ class StringableTest extends TestCase
     {
         $outputFormat = '\W\e\e\k W, Y';
         $this->blade->stringable(fn(DateTime $d) => $d->format($outputFormat));
+
+        $date = new DateTime();
+
+        $this->assertSame(
+            $date->format($outputFormat),
+            $this->renderBlade('{{$date}}', ['date' => $date])
+        );
+    }
+
+    public function testIntersectionStringable(): void
+    {
+        $outputFormat = '\W\e\e\k W, Y';
+        $this->blade->stringable(fn(DateTimeInterface|DateTime $d) => $d->format($outputFormat));
 
         $date = new DateTime();
 
