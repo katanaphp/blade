@@ -22,4 +22,11 @@ abstract class ViewFinder
      * by name.
      */
     abstract public function getContents(string $name): string;
+
+    /**
+     * Retrieves a stable identifier that is unique to finder
+     * such as vendor/package, or file path in case of
+     * file system view finder.
+     */
+    abstract public function identifier(): string;
 }

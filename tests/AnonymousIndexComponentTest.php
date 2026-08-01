@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Exception;
+use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -77,6 +78,12 @@ class AnonymousIndexComponentTest extends TestCase
             public function getContents(string $name): string
             {
                 return $this->views[$name] ?? '';
+            }
+
+            #[Override]
+            public function identifier(): string
+            {
+                return "in-memory";
             }
         };
 

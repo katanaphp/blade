@@ -136,7 +136,7 @@ final class Blade
             );
         }
 
-        $identifier = $this->getViewIdentifier($view);
+        $identifier = $this->getCacheKey($view);
         $compiledPath = $this->getCachedViewPath($identifier);
 
         if (file_exists($compiledPath)) {
@@ -150,11 +150,25 @@ final class Blade
         return $identifier;
     }
 
-    public function getViewIdentifier(string | Component $view): string
+    protected function getCacheKey(string | Component $view): string
     {
-        $name = is_string($view) ? $view : $view->name;
+        $finderIdentifier = '';
 
-        return hash('sha1', $name . $this->getLastModified($view));
+        if ($view instanceof Component) {
+            $finderIdentifier = $view->finderIdentifier();
+        } else {
+            $finderIdentifier = $this->resolveFinder($view)?->identifier();
+        }
+
+        return hash(
+            'sha1',
+            sprintf(
+                '%s|%s|%d',
+                $finderIdentifier,
+                is_string($view) ? $view : $view->resolvedName,
+                $this->getLastModified($view),
+            ),
+        );
     }
 
     protected function getLastModified(string | Component $view): int

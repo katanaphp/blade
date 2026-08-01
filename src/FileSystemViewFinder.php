@@ -43,6 +43,12 @@ class FileSystemViewFinder extends ViewFinder
         return file_get_contents($this->getFilePath($name));
     }
 
+    #[Override]
+    public function identifier(): string
+    {
+        return $this->basePath;
+    }
+
     protected function getFilePath(string $viewName): string
     {
         return sprintf(
