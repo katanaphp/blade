@@ -63,7 +63,7 @@ class CompiledViewCacheTest extends BladeTestCase
                 new FileSystemViewFinder("{$this->basePath}/components")
             ));
 
-        $component = new class('banner', [], $blade) extends Component {};
+        $component = new class('', 'banner', [], $blade) extends Component {};
 
         $this->assertSame('Banner view', $blade->render('banner')->render());
         $this->assertSame('Banner component', $blade->render($component)->render());

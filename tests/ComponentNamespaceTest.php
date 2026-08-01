@@ -383,6 +383,11 @@ class ComponentNamespaceTest extends TestCase
             {
                 return $this->views[$name] ?? '';
             }
+
+            public function identifier(): string
+            {
+                return 'acme-identifier';
+            }
         };
 
         $this->blade->addAnonymousComponentViewFinder($customFinder, 'acme');
