@@ -117,13 +117,20 @@ final class Blade
      * Register a path or view finder for anonymous components other than
      * the default view path.
      */
-    public function addAnonymousComponentPath(string|ViewFinder $path): self
+    public function addAnonymousComponentPath(string|ViewFinder $path, string $namespace = ''): self
     {
         if (is_string($path)) {
-            $path = new FileSystemViewFinder($path);
+            $this->config->addAnonymousComponentPath($path, $namespace);
+        } else {
+            $this->config->addAnonymousComponentViewFinder($path, $namespace);
         }
 
-        $this->config->addAnonymousComponentViewFinder($path);
+        return $this;
+    }
+
+    public function addAnonymousComponentViewFinder(ViewFinder $finder, string $namespace = ''): self
+    {
+        $this->config->addAnonymousComponentViewFinder($finder, $namespace);
 
         return $this;
     }
@@ -131,8 +138,10 @@ final class Blade
     public function compile(string | Component $view): string
     {
         if (!$this->viewExists($view)) {
+            $componentName = is_string($view) ? $view : ($view->namespace === '' ? $view->name : sprintf("%s::%s", $view->namespace, $view->name));
+
             throw new BladeException(
-                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $view)
+                sprintf(Messages::ERROR_VIEW_NOT_FOUND, $componentName)
             );
         }
 

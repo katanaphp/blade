@@ -70,6 +70,21 @@ trait VerifiesOutputTrait
 
         is_dir($directory) && rmdir($directory);
     }
+    
+    protected function cleanUpGeneratedFiles(): void
+    {
+        $files = array_merge(
+            $this->createdFiles,
+            glob("{$this->blade->config->cachePath}/*.php")
+        );
+
+        foreach ($files as $file) {
+            if (!file_exists($file)) {
+                continue;
+            }
+            unlink($file);
+        }
+    }
 
     private function getTempDirectory(): string
     {
@@ -91,28 +106,25 @@ trait VerifiesOutputTrait
      * @param string $template
      * @return string
      */
-    private function createTemporaryBladeFile(string $template, string $name = '', bool $isComponent = false): string
+    private function createTemporaryBladeFile(string $template, string $name = '', $directory = ''): string
     {
         if (empty($name)) {
             $name = hash('sha256', $template);
-        }
-
-        if ($isComponent) {
-            $name = 'components.' . $name;
         }
 
         if (str_contains($name, '.')) {
             $name = str_replace('.', '/', $name);
         }
 
-        $file = $this->getTempDirectory() . "/{$name}.blade.php";
 
+        $file = sprintf(
+            "%s/%s.blade.php",
+            $directory ? $directory : $this->getTempDirectory(),
+            $name
+        );
 
-        if ($isComponent) {
-            $directory = pathinfo($file, PATHINFO_DIRNAME);
-            $this->maybeCreateComponentDirectory($directory);
-        }
-
+        $directory = pathinfo($file, PATHINFO_DIRNAME);
+        $this->recursivelyCreateDirectory($directory);
 
         if (file_put_contents($file, $template) === false) {
             throw new \Exception('Could not create temporary file');
@@ -123,7 +135,7 @@ trait VerifiesOutputTrait
         return $name;
     }
 
-    private function maybeCreateComponentDirectory(string $directory): void
+    private function recursivelyCreateDirectory(string $directory): void
     {
         if (!is_dir($directory)) {
             mkdir(
@@ -141,13 +153,24 @@ trait VerifiesOutputTrait
         return (string) $this->blade->render($name, $data);
     }
 
-    public function createComponent(string $name, string $template, $data = [])
+    public function createComponent(string $name, string $template, string $namespace = '')
     {
+        $directory = $this->getTempDirectory() . "/components";
+
+        if (strlen($namespace) > 0) {
+            $directory = $this->getNamespaceDir($namespace);
+        }
+
         $name = $this->createTemporaryBladeFile(
             $template,
             $name,
-            true
+            $directory
         );
+    }
+
+    public function getNamespaceDir(string $namespace): string
+    {
+        return sprintf("%s/namespaces/%s", $this->getTempDirectory(), $namespace);
     }
 
     protected function removeIndentation(string $input): string

@@ -4,6 +4,8 @@ namespace Blade;
 
 class ComponentTagsCompiler
 {
+    public const REGEX_COMPONENT_NAME = "(?>(?>(?'namespace'[a-zA-Z0-9-]+)(?'separator'::))|)(?'name'[a-zA-Z0-9-.]+)";
+
     public function __construct(protected string $template) {}
 
     public function compile()
@@ -17,8 +19,10 @@ class ComponentTagsCompiler
 
     protected function compileSelfClosingTags(string $template): string
     {
-        $regex = <<<'REGEX'
-        /<x-(?'name'[a-z0-9-.]*)
+        $regex = self::REGEX_COMPONENT_NAME;
+
+        $regex = <<<REGEX
+        /<x-{$regex}
         \s*
         (?'attributes'
            (?>[\w\:\-\$]+
@@ -38,7 +42,7 @@ class ComponentTagsCompiler
             $regex,
             function ($matches) {
                 $attributes = $this->parseAttributes($matches['attributes']);
-                return self::getStartRenderingCode($matches['name'], $attributes) .
+                return self::getStartRenderingCode($matches['namespace'] ?? '', $matches['name'], $attributes) .
                     self::getEndRenderingCode();
             },
             $template
@@ -47,7 +51,7 @@ class ComponentTagsCompiler
         return $template;
     }
 
-    public static function getStartRenderingCode(string $componentName, string $attributes, bool $componentDirectiveCompatibility = false): string
+    public static function getStartRenderingCode(string $namespace, string $componentName, string $attributes, bool $componentDirectiveCompatibility = false): string
     {
         $compatibilityFlag = sprintf("componentDirectiveCompatibility: %s", $componentDirectiveCompatibility ? "true" : "false");
         $attributes = trim($attributes);
@@ -57,7 +61,7 @@ class ComponentTagsCompiler
             return  "<?php \$component_renderer->beginSlot('$componentName', {$attributes});?>";
         }
 
-        return "<?php \$component_renderer->prepare('$componentName', {$attributes}, {$compatibilityFlag});?>";
+        return "<?php \$component_renderer->prepare('$namespace', '$componentName', {$attributes}, {$compatibilityFlag});?>";
     }
 
     public static function getEndRenderingCode(): string
@@ -167,9 +171,10 @@ class ComponentTagsCompiler
 
     protected function compileOpeningTags(string $template): string
     {
+        $regex = self::REGEX_COMPONENT_NAME;
 
-        $regex = <<<'REGEX'
-        /<x-(?'name'[a-z0-9-.]*)
+        $regex = <<<REGEX
+        /<x-{$regex}
         \s*
         (?'attributes'
            (?>[\w\:\-]+
@@ -190,6 +195,7 @@ class ComponentTagsCompiler
             function ($matches) {
 
                 return self::getStartRenderingCode(
+                    $matches['namespace'] ?? '',
                     $matches['name'],
                     !empty($matches['attributes']) ? $this->parseAttributes($matches['attributes']) : '[]'
                 );
@@ -200,7 +206,9 @@ class ComponentTagsCompiler
 
     protected function compileClosingTags(string $template): string
     {
-        $regex = "/<\/x-(?'name'[a-z0-9\.-]+)>/";
+        $regex = self::REGEX_COMPONENT_NAME;
+
+        $regex = "/<\/x-{$regex}>/";
 
         return preg_replace_callback(
             $regex,
