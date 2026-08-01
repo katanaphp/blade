@@ -155,7 +155,7 @@ Template inheritance allows you to create layouts by defining a master template 
 | `@slot`                                              |             | ✅     |
 | `Class components`                                   |             | ❌     |
 | `Anonymous component`                                |             | ✅     |
-| `Vendor Namespacing`                                 |             | ❌     |
+| `Vendor Namespacing`                                 |             | ✅     |
 | `Component Attributes`                               |             | ✅     |
 | `Short hand attribute syntax`                        |             | ✅     |
 | `Attribute Render Escaping`                          |             | ✅     |
