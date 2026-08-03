@@ -127,7 +127,7 @@ class Attributes implements HtmlableInterface, IteratorAggregate
     /**
      * Determine if one or more attributes are set.
      *
-     * @param  string|array $key
+     * @param  string|array $keys
      * @return bool
      */
     public function has(string|array $keys): bool

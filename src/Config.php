@@ -86,7 +86,7 @@ class Config
     }
 
     /**
-     * @param Closure(...$params): bool $callback
+     * @param \Closure(mixed...): bool $callback
      */
     public function setAuthCallback(Closure $callback): static
     {
