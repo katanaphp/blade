@@ -47,8 +47,6 @@ class ComponentTagsCompiler
             },
             $template
         );
-
-        return $template;
     }
 
     public static function getStartRenderingCode(string $namespace, string $componentName, string $attributes, bool $componentDirectiveCompatibility = false): string
@@ -153,22 +151,12 @@ class ComponentTagsCompiler
 
     private function trimQuotes(string $value): string
     {
-        if (str_starts_with($value, '\'') && str_starts_with($value, '\'')) {
+        if (str_starts_with($value, '\'')) {
             return trim($value, '\'');
         }
 
         return $value;
     }
-
-    private function toCamelCase(string $value): string
-    {
-        return preg_replace_callback(
-            '/(-)([a-z])/',
-            fn($matches) => strtoupper($matches[2]),
-            $value
-        );
-    }
-
 
     protected function compileOpeningTags(string $template): string
     {
@@ -222,7 +210,5 @@ class ComponentTagsCompiler
             },
             $template
         );
-
-        return $template;
     }
 }
