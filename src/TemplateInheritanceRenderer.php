@@ -75,7 +75,7 @@ class TemplateInheritanceRenderer
         $this->endSection();
 
         $section = $this->sections[$this->currentSection];
-        $content = $this->getSection($this->currentSection, $type);
+        $content = $this->getSection($this->currentSection);
 
         if ($this->hasParentContentPlaceholder($content)) {
             $content = $this->replaceParentContentPlaceholder($content, $section);
