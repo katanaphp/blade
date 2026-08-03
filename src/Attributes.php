@@ -9,7 +9,7 @@ use Traversable;
 
 class Attributes implements HtmlableInterface, IteratorAggregate
 {
-    public function __construct(protected array $attributes)
+    final public function __construct(protected array $attributes)
     {
         $this->attributes = $attributes;
     }
