@@ -243,6 +243,34 @@ class ComponentAttributeBagTest extends TestCase
 
         $this->assertSame($original, $attributes->toArray());
     }
+
+    public function testMergeAttributesGetsReplaced(): void
+    {
+        $this->createComponent('alert', '<div {{ $attributes->merge(["role" => "alert"]) }}></div>');
+
+        $this->assertSame("<div role='alert'></div>", $this->renderBlade('<x-alert/>'));
+        $this->assertSame("<div role='group'></div>", $this->renderBlade('<x-alert role="group"/>'));
+    }
+
+    public function testMergeUsesDefaultValueWhenPropExistsAndWhenAttributeIsPassed(): void
+    {
+        $this->createComponent(
+            'button',
+            '@props(["type"=>"button"])' .
+                '<button {{ $attributes->merge(["type" => "submit"]) }}></button>'
+        );
+
+        $this->assertSame(
+            "<button type='submit'></button>",
+            $this->renderBlade("<x-button/>")
+        );
+
+        $this->assertSame(
+            "<button type='submit'></button>",
+            $this->renderBlade("<x-button type='reset' />")
+        );
+    }
+
     public function testOnlyRendersStringBoolNumbers(): void
     {
         $cases = [

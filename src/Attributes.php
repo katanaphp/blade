@@ -48,7 +48,7 @@ class Attributes implements HtmlableInterface, IteratorAggregate
         foreach ($defaultAttributes as $key => $value) {
 
             if (!isset($attributes[$key])) {
-                $attributes[$key] = '';
+                $attributes[$key] = $value;
             }
 
             if ($key === 'class') {
@@ -61,7 +61,8 @@ class Attributes implements HtmlableInterface, IteratorAggregate
                 continue;
             }
 
-            $attributes[$key] .= $value;
+
+            // $attributes[$key] .= $value;
         }
 
         return new static($attributes);
