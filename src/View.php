@@ -2,6 +2,7 @@
 
 namespace Blade;
 
+use Blade\Exceptions\InvalidArgumentException;
 use Blade\Interfaces\HtmlableInterface;
 
 class View implements HtmlableInterface

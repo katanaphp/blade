@@ -3,6 +3,7 @@
 namespace Blade;
 
 use Blade\Component;
+use Blade\Exceptions\InvalidArgumentException;
 use Blade\Interfaces\HtmlableInterface;
 
 class ComponentRenderer
@@ -105,17 +106,24 @@ class ComponentRenderer
          * them from the attributes array.
          */
         $propsKeys = [];
+
         foreach ($component->props as $key => $prop) {
-            if (is_int($key)) {
+            if (is_int($key) && !isset($data[$prop])) {
+                $message = sprintf(
+                    "Required prop %s is missing on %s component",
+                    $component->name,
+                    $prop
+                );
+                throw new InvalidArgumentException($message);
+            } elseif (is_int($key) && isset($data[$prop])) {
                 $key = $prop;
-                $prop = null;
-            }
-
-            if (!isset($data[$key])) {
+                $propsKeys[] = $key;
+            } elseif (is_string($key) && !isset($data[$key])) {
                 $data[$key] = $prop;
+                $propsKeys[] = $key;
+            } elseif (is_string($key) && isset($data[$key])) {
+                $propsKeys[] = $key;
             }
-
-            $propsKeys[] = $key;
         }
 
         $data['attributes'] = $attributes->removeProps($propsKeys);
