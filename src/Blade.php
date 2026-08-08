@@ -275,6 +275,13 @@ final class Blade
         );
     }
 
+    public function stringable(Closure $callback): static
+    {
+        $this->config->addStringable($callback);
+
+        return $this;
+    }
+
     /**
      * Filters conditional values.
      *

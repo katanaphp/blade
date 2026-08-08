@@ -21,6 +21,7 @@ class Config
     public string $cachePath;
 
     protected array $directives = [];
+    public array $stringables = [];
 
     public function __construct(string $cachePath)
     {
@@ -122,5 +123,12 @@ class Config
         }
 
         return null;
+    }
+
+    public function addStringable(Closure $callback): static
+    {
+        $this->stringables[] = $callback;
+
+        return $this;
     }
 }
