@@ -122,14 +122,24 @@ class CompileAtRules
                 $content
             );
         } elseif ($this->blade->getDirective($directiveName)) {
+            $callback = $this->blade->getDirective($directiveName);
+
             $expression = trim($expression, "(");
             $expression = trim($expression, ")");
 
-            $content = $this->replaceDirective(
-                $directive,
-                "<?php if(\$__env->runDirective('{$directiveName}', {$expression})): ?>",
-                $content,
-            );
+            if (!$callback->isConditional) {
+                $content = $this->replaceDirective(
+                    $directive,
+                    $callback($expression),
+                    $content
+                );
+            } elseif ($callback) {
+                $content = $this->replaceDirective(
+                    $directive,
+                    "<?php if(\$__env->runDirective('{$directiveName}', {$expression})): ?>",
+                    $content,
+                );
+            }
         } elseif (str_starts_with($directiveName, 'end') && $this->blade->getDirective(substr($directiveName, 3))) {
             $content = $this->replaceDirective(
                 $directive,

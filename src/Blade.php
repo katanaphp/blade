@@ -62,16 +62,16 @@ final class Blade
          * in production unless specified.
          */
         $this->setEnvironment(fn() => self::DEFAULT_APP_ENVIRONMENT);
-        $this->setDirective('production', fn() => $this->getDirective('env')(self::DEFAULT_APP_ENVIRONMENT));
+        $this->config->if('production', fn() => $this->getDirective('env')(self::DEFAULT_APP_ENVIRONMENT));
 
 
         $this->componentRenderer = new ComponentRenderer($this);
         $this->templateRenderer = new TemplateInheritanceRenderer($this);
     }
 
-    public function getDirective(string $name): ?callable
+    public function getDirective(string $name): ?Directive
     {
-        return $this->directives[$name] ?? $this->config->getDirective($name);
+        return $this->config->getDirective($name);
     }
 
     public function runDirective($name, ...$params): mixed
@@ -106,11 +106,13 @@ final class Blade
      */
     public function setEnvironment(callable $callback): static
     {
-        return $this->setDirective('env', function (string | array $environment) use ($callback) {
+        $this->config->if('env', function (string | array $environment) use ($callback) {
             $environment = is_array($environment) ? $environment : [$environment];
 
             return in_array($callback(), $environment);
         });
+
+        return $this;
     }
 
     /**
@@ -236,6 +238,13 @@ final class Blade
 
             throw $e;
         }
+    }
+
+    public function directive(string $name, Closure $callback): static
+    {
+        $this->config->directive($name, $callback);
+
+        return $this;
     }
 
     protected function resolveFinder(string $name): ?ViewFinder
