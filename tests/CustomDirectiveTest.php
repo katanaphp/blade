@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use DateInterval;
+use DatePeriod;
 use DateTime;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -40,7 +42,7 @@ class CustomDirectiveTest extends TestCase
         $this->assertSame(
             date('Y-m-d', time() - 86400),
             $this->renderBlade("@date(\$date)", [
-                'date' => DateTime::createFromTimestamp(time() - 86400)
+                'date' => (new DateTime)->sub(new DateInterval("P1D"))
             ])
         );
     }
