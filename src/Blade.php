@@ -240,6 +240,10 @@ final class Blade
         }
     }
 
+    /**
+     * Registers a custom blade directive
+     * @param Closure(string):string $callback
+     */
     public function directive(string $name, Closure $callback): static
     {
         $this->config->directive($name, $callback);

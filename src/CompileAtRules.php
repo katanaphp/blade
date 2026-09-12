@@ -12,6 +12,8 @@ class CompileAtRules
     const FORELSE_OPEN = 1;
     const FORELSE_OPEN_EMPTY_BLOCK = 2;
 
+    const REGEX_DIRECTIVE_NAME = "(?'directive'[a-z0-9_]+)(?:::(?&directive))?";
+
     use CompileForeachTrait;
     use FragmentCompiler;
     use StackCompiler;
@@ -26,7 +28,7 @@ class CompileAtRules
 
     public function compile(): string
     {
-        $statementRegex = "/(@|)@(?'directive'[a-z]+)\s*(?'expression'\((?:\s|.)*?\))?/i";
+        $statementRegex = "/(@|)@" . self::REGEX_DIRECTIVE_NAME . "\s*(?'expression'\((?:\s|.)*?\))?/i";
 
         $matches = [];
 
@@ -124,13 +126,25 @@ class CompileAtRules
         } elseif ($this->blade->getDirective($directiveName)) {
             $callback = $this->blade->getDirective($directiveName);
 
-            $expression = trim($expression, "(");
-            $expression = trim($expression, ")");
+            // dump($expression);
+
+
+            if (str_starts_with($expression, "(")) {
+                $expression = substr($expression, 1);
+            }
+
+
+            if (str_ends_with($expression, ")")) {
+                $expression = substr($expression, 0, strlen($expression) - 1);
+            }
+
+
+            // $expression = trim($expression, ")");
 
             if (!$callback->isConditional) {
                 $content = $this->replaceDirective(
                     $directive,
-                    $callback($expression),
+                    $callback($expression) ?? '',
                     $content
                 );
             } elseif ($callback) {

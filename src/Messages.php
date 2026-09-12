@@ -16,4 +16,5 @@ class Messages
     public const ERROR_INTERSECTION_TYPES_NOT_SUPPORTED = "Union types for resoluons not supported";
     public const ERROR_CANNOT_CAST_TO_STRING = "Cannot convert value of type `%s` to string.";
     public const ERROR_INVALID_STRINGABLE_PARAM = "The first parameter of the the closure must a concrete class and should not be a builtin type";
+    public const ERROR_INVALID_DIRECTIVE_NAME = "Invalid directive name `%s` only alphabets, numbers and underscores should be used";
 }

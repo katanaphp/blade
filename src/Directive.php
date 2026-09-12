@@ -3,6 +3,7 @@
 namespace Blade;
 
 use Closure;
+use InvalidArgumentException;
 
 class Directive
 {
@@ -14,7 +15,12 @@ class Directive
      * @var bool
      */
     public bool $isConditional = false;
-    public function __construct(public string $name, public Closure $closure) {}
+    public function __construct(public string $name, public Closure $closure)
+    {
+        if (!preg_match("/^" . CompileAtRules::REGEX_DIRECTIVE_NAME . "$/i", $name)) {
+            throw new InvalidArgumentException(sprintf(Messages::ERROR_INVALID_DIRECTIVE_NAME, $name));
+        }
+    }
 
     public function __invoke(...$args)
     {
