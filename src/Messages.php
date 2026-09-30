@@ -13,4 +13,7 @@ class Messages
     public const ERROR_MISSING_DEFAULT_VIEW_FINDER = 'Missing default views, use Config::addViewPath';
     public const ERROR_AUTH_CALLBACK_REQUIRED = 'Auth callback is required, use Config::setAuthCallback';
     public const ERROR_MULTIPLE_PATH_FOR_NAMESPACE_NOT_ALLOWED = "Path for the component namespace %s already registered, multiple paths are not allowed";
+    public const ERROR_INTERSECTION_TYPES_NOT_SUPPORTED = "Union types for resoluons not supported";
+    public const ERROR_CANNOT_CAST_TO_STRING = "Cannot convert value of type `%s` to string.";
+    public const ERROR_INVALID_STRINGABLE_PARAM = "The first parameter of the the closure must a concrete class and should not be a builtin type";
 }

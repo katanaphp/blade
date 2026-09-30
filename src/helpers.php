@@ -2,10 +2,15 @@
 
 namespace Blade;
 
+use Blade\Exceptions\BladeException;
 use Blade\Interfaces\HtmlableInterface;
+use ReflectionFunction;
+use ReflectionIntersectionType;
+use ReflectionNamedType;
+use ReflectionUnionType;
 use Stringable;
 
-function e($value): string
+function e($value, ?Config $config = null): string
 {
     if ($value === null) {
         return '';
@@ -19,7 +24,7 @@ function e($value): string
         return htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false);
     }
 
-    return sprintf("Cannot convert value of type `%s` to string.", gettype($value));
+    return sprintf(Messages::ERROR_CANNOT_CAST_TO_STRING, gettype($value));
 }
 
 
