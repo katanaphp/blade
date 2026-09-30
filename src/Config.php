@@ -4,6 +4,9 @@ namespace Blade;
 
 use Blade\Exceptions\BladeException;
 use Closure;
+use ReflectionFunction;
+use ReflectionNamedType;
+use RuntimeException;
 
 /**
  *
@@ -21,7 +24,7 @@ class Config
     public string $cachePath;
 
     protected array $directives = [];
-    public array $stringables = [];
+    protected array $stringables = [];
 
     public function __construct(string $cachePath)
     {
@@ -127,8 +130,24 @@ class Config
 
     public function addStringable(Closure $callback): static
     {
-        $this->stringables[] = $callback;
+        $function = new ReflectionFunction($callback);
+        $params = $function->getParameters();
+
+        $type = $params[0]->getType();
+
+        if ($type instanceof ReflectionNamedType) {
+            $type = $type->getName();
+        } else {
+            throw new RuntimeException(Messages::ERROR_INVALID_STRINGABLE_PARAM);
+        }
+
+        $this->stringables[$type] = $callback;
 
         return $this;
+    }
+
+    public function getStringable(string $className): ?Closure
+    {
+        return $this->stringables[$className] ?? null;
     }
 }

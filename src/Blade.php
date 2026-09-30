@@ -282,6 +282,29 @@ final class Blade
         return $this;
     }
 
+
+    /**
+     *
+     * @template T
+     * @param T $value
+     * @return T|string
+     */
+    public function resolveStringable($value)
+    {
+        if (!is_object($value)) {
+            return $value;
+        }
+
+        $closure = $this->config->getStringable(get_class($value));
+
+        if ($closure) {
+            return $closure($value);
+        }
+
+
+        return $value;
+    }
+
     /**
      * Filters conditional values.
      *

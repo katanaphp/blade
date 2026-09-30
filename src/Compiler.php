@@ -163,7 +163,7 @@ class Compiler
                 return substr($directive, 1);
             }
 
-            return "<?php echo \Blade\\e($expression, \$__env->config); ?>";
+            return "<?php echo \Blade\\e(\$__env->resolveStringable($expression), \$__env->config); ?>";
         }, $template);
     }
 
@@ -177,7 +177,7 @@ class Compiler
                 return substr($directive, 1);
             }
 
-            return "<?php echo $expression; ?>";
+            return "<?php echo \$__env->resolveStringable($expression); ?>";
         }, $template);
     }
 
