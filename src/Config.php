@@ -94,25 +94,33 @@ class Config
      */
     public function setAuthCallback(Closure $callback): static
     {
-        $this->registerDirective('auth', $callback);
-        $this->registerDirective('guest', fn(...$params) => !$callback(...$params));
+        $this->if('auth', $callback);
+        $this->if('guest', fn(...$params) => !$callback(...$params));
 
         return $this;
     }
 
-    public function registerDirective(string $name, Closure $callback): static
+    public function directive(string $name, Closure $callback): static
     {
-        return $this->setDirective($name, $callback);
-    }
+        $directive = new Directive($name, $callback);
+        $directive->isConditional = false;
 
-    protected function setDirective(string $name, Closure $callback): static
-    {
-        $this->directives[$name] = $callback;
+        $this->directives[$directive->name] = $directive;
 
         return $this;
     }
 
-    public function getDirective(string $name): ?callable
+    public function if(string $name, Closure $callback): static
+    {
+        $directive = new Directive($name, $callback);
+        $directive->isConditional = true;
+
+        $this->directives[$directive->name] = $directive;
+
+        return $this;
+    }
+
+    public function getDirective(string $name): ?Directive
     {
         return $this->directives[$name] ?? null;
     }
