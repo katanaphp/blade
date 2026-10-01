@@ -126,9 +126,6 @@ class CompileAtRules
         } elseif ($this->blade->getDirective($directiveName)) {
             $callback = $this->blade->getDirective($directiveName);
 
-            // dump($expression);
-
-
             if (str_starts_with($expression, "(")) {
                 $expression = substr($expression, 1);
             }
@@ -137,9 +134,6 @@ class CompileAtRules
             if (str_ends_with($expression, ")")) {
                 $expression = substr($expression, 0, strlen($expression) - 1);
             }
-
-
-            // $expression = trim($expression, ")");
 
             if (!$callback->isConditional) {
                 $content = $this->replaceDirective(
