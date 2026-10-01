@@ -2,8 +2,8 @@
 
 namespace Tests;
 
+use Blade\Messages;
 use DateInterval;
-use DatePeriod;
 use DateTime;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -112,7 +112,12 @@ class CustomDirectiveTest extends TestCase
 
     public function testNamespacedDirectiveSingleColon(): void
     {
+        $directive = 'katanaphp:blade';
+
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            sprintf(Messages::ERROR_INVALID_DIRECTIVE_NAME, $directive)
+        );
 
         $this->blade->directive('katanaphp:blade', function () {
             return "<?php echo 'sharp' ?>";
@@ -127,5 +132,13 @@ class CustomDirectiveTest extends TestCase
 
         $this->assertSame('earth', $this->renderBlade('@bluePlanet'));
         $this->assertSame('@blueplanet', $this->renderBlade('@blueplanet'));
+    }
+
+    public function testHonoursLastRegistration()
+    {
+        $this->blade->directive('first', fn() => 'First');
+        $this->blade->directive('first', fn() => 'Second');
+
+        $this->assertSame('Second', $this->renderBlade('@first'));
     }
 }
