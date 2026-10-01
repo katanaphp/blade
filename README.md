@@ -211,4 +211,4 @@ Template inheritance allows you to create layouts by defining a master template 
 | `@pushOnce`      |             | ❌     |
 | `@prependOnce`   |             | ❌     |
 | `@php`           |             | ✅     |
-| `@use`           |             | ❌     |
+| `@use`           |             | ✅     |
