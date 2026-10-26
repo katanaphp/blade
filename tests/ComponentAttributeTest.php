@@ -64,6 +64,50 @@ class ComponentAttributeTest extends TestCase
         );
     }
 
+    public function testExpressionAttributeStartingWithStringLiteral()
+    {
+        $this->createComponent('alert', '<div>Hello, {{ $name }}</div>');
+
+        $blade = <<<'BLADE'
+        <x-alert :name="'Taylor ' . $name" />
+        BLADE;
+
+        $this->assertSame(
+            "<div>Hello, Taylor Tamagui</div>",
+            $this->renderBlade($blade, ['name' => 'Tamagui'])
+        );
+    }
+
+    public function testExpressionAttributeWithStringLiteral()
+    {
+        $this->createComponent('alert', '<div>Hello, {{ $name }}</div>');
+
+        $this->assertSame(
+            "<div>Hello, Taylor</div>",
+            $this->renderBlade('<x-alert :name="\'Taylor\'" />')
+        );
+    }
+
+    public function testExpressionAttributeWithConcatenatedStringLiterals()
+    {
+        $this->createComponent('alert', '<div>Hello, {{ $name }}</div>');
+
+        $this->assertSame(
+            "<div>Hello, Taylor Tamagui</div>",
+            $this->renderBlade('<x-alert :name="\'Taylor\' . \' Tamagui\'" />')
+        );
+    }
+
+    public function testExpressionAttributeWithSingleQuotesAndStringLiteral()
+    {
+        $this->createComponent('alert', '<div>Hello, {{ $name }}</div>');
+
+        $this->assertSame(
+            "<div>Hello, Taylor</div>",
+            $this->renderBlade("<x-alert :name='\"Taylor\"' />")
+        );
+    }
+
     public function testMultiLineProps(): void
     {
         $this->createComponent(
