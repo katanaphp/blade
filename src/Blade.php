@@ -352,7 +352,7 @@ final class Blade
     {
         return sprintf(
             'class="%s"',
-            implode(' ', static::filterConditionalValues($classes))
+            e(implode(' ', static::filterConditionalValues($classes)))
         );
     }
 
