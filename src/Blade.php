@@ -366,7 +366,7 @@ final class Blade
 
         return sprintf(
             'style="%s"',
-            implode(' ', static::filterConditionalValues($styles))
+            e(implode(' ', static::filterConditionalValues($styles)))
         );
     }
 }

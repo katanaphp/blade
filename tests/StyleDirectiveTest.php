@@ -34,4 +34,52 @@ class StyleDirectiveTest extends TestCase
             )
         );
     }
+
+    public function testEscapesSingleQuotes(): void
+    {
+        $this->assertSame(
+            'style="background: url(&#039;https://example.com/image.png&#039;);"',
+
+            $this->renderBlade(
+                '@style($styles)',
+                ['styles' => ["background: url('https://example.com/image.png')"]]
+            )
+        );
+    }
+
+    public function testEscapesDoubleQuotes(): void
+    {
+        $this->assertSame(
+            'style="background: url(&quot;https://example.com/image.png&quot;);"',
+
+            $this->renderBlade(
+                '@style($styles)',
+                ['styles' => ['background: url("https://example.com/image.png")']]
+            )
+        );
+    }
+
+    public function testEscapesTagBreakout(): void
+    {
+        $this->assertSame(
+            'style="&quot;&gt; &lt;script&gt;alert(1)&lt;/script&gt;;"',
+
+            $this->renderBlade(
+                '@style($styles)',
+                ['styles' => ['"> <script>alert(1)</script>']]
+            )
+        );
+    }
+
+    public function testEscapesConditionalKeyValues(): void
+    {
+        $this->assertSame(
+            'style="&quot;&gt;&lt;img src=x onerror=alert(1)&gt;;"',
+
+            $this->renderBlade(
+                '@style($styles)',
+                ['styles' => ['"><img src=x onerror=alert(1)>' => true]]
+            )
+        );
+    }
 }
