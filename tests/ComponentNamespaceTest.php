@@ -318,6 +318,51 @@ class ComponentNamespaceTest extends TestCase
         );
     }
 
+    public function testUnderscoreInNamespace(): void
+    {
+        $this->createComponent('alert', 'katana blade alert', 'katana_blade');
+
+        $this->blade->addAnonymousComponentPath(
+            $this->getNamespaceDir('katana_blade'),
+            'katana_blade'
+        );
+
+        $this->assertSame(
+            "katana blade alert",
+            $this->renderBlade("<x-katana_blade::alert />")
+        );
+    }
+
+    public function testNamespaceStartingWithUnderscore(): void
+    {
+        $this->createComponent('alert', 'katana blade alert', '_blade');
+
+        $this->blade->addAnonymousComponentPath(
+            $this->getNamespaceDir('_blade'),
+            '_blade'
+        );
+
+        $this->assertSame(
+            "katana blade alert",
+            $this->renderBlade("<x-_blade::alert />")
+        );
+    }
+
+    public function testNamespaceEndingWithUnderscore(): void
+    {
+        $this->createComponent('alert', 'katana blade alert', 'blade_');
+
+        $this->blade->addAnonymousComponentPath(
+            $this->getNamespaceDir('blade_'),
+            'blade_'
+        );
+
+        $this->assertSame(
+            "katana blade alert",
+            $this->renderBlade("<x-blade_::alert />")
+        );
+    }
+
     public function testNamespaceResolvesDottedAndIndexComponents(): void
     {
         $this->createComponent('forms.input', 'Namespaced input', 'acme');
