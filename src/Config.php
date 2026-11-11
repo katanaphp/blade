@@ -31,6 +31,7 @@ class Config
         $this->cachePath = rtrim($cachePath, '/');
 
         $this->setAuthCallback(fn() => throw new BladeException(Messages::ERROR_AUTH_CALLBACK_REQUIRED));
+        $this->setCsrfCallback(fn() => throw new RuntimeException(Messages::ERROR_CSRF_CALLBACK_REQUIRED));
     }
 
     public function addViewPath(string $path): static
@@ -98,6 +99,11 @@ class Config
         $this->if('guest', fn(...$params) => !$callback(...$params));
 
         return $this;
+    }
+
+    public function setCsrfCallback(Closure $callback): static
+    {
+        return $this->directive('csrf', $callback);
     }
 
     public function directive(string $name, Closure $callback): static
