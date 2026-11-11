@@ -60,6 +60,27 @@ class ComponentTagsTest extends TestCase
         );
     }
 
+    public function testComponentNameStartingWithUnderscore(): void
+    {
+        $this->createComponent('_alert-info-start', "<div>Hello {{ \$name }}</div>");
+
+        $this->assertSame(
+            "<div>Hello Taylor</div>",
+            $this->renderBlade("<x-_alert-info-start name='Taylor'/>")
+        );
+    }
+
+    public function testComponentNameEndingWithUnderscore(): void
+    {
+        $this->createComponent('alert_info_end_', "<div>Hello {{ \$name }}</div>");
+
+        $this->assertSame(
+            "<div>Hello Taylor</div>",
+            $this->renderBlade("<x-alert_info_end_ name='Taylor'/>")
+        );
+    }
+
+
     public function testComponentInDirectoryWithUnderscore(): void
     {
         $this->createComponent('notices.alert_info', "<div>Hola {{ \$name }}</div>");
