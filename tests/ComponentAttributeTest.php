@@ -82,4 +82,46 @@ class ComponentAttributeTest extends TestCase
             $this->renderBlade('<x-alert/>')
         );
     }
+
+    public function testEscapesSingleQuotes(): void
+    {
+        $this->createComponent('alert', '<div {{ $attributes }}></div>');
+
+        $this->assertSame(
+            "<div class='bg-red&#039;'></div>",
+
+            $this->renderBlade(
+                '<x-alert :class="$class" />',
+                ['class' => "bg-red'"]
+            )
+        );
+    }
+
+    public function testEscapesDoubleQuotes(): void
+    {
+        $this->createComponent('alert', '<div {{ $attributes }}></div>');
+
+        $this->assertSame(
+            "<div class='bg-red&quot;'></div>",
+
+            $this->renderBlade(
+                '<x-alert :class="$class" />',
+                ['class' => "bg-red\""]
+            )
+        );
+    }
+
+    public function testEscapesTagBreakout(): void
+    {
+        $this->createComponent('alert', '<div {{ $attributes }}></div>');
+
+        $this->assertSame(
+            "<div class='&quot;&gt; &lt;script&gt;alert(1)&lt;/script&gt;'></div>",
+
+            $this->renderBlade(
+                '<x-alert :class="$class" />',
+                ['class' => '"> <script>alert(1)</script>']
+            )
+        );
+    }
 }
