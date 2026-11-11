@@ -4,7 +4,7 @@ namespace Blade;
 
 class ComponentTagsCompiler
 {
-    public const REGEX_COMPONENT_NAME = "(?>(?>(?'namespace'[a-zA-Z0-9-]+)(?'separator'::))|)(?'name'[a-zA-Z0-9-._]+)";
+    public const REGEX_COMPONENT_NAME = "(?>(?>(?'namespace'[\w-]+)(?'separator'::))|)(?'name'[a-zA-Z0-9-._]+)";
 
     public function __construct(protected string $template) {}
 
