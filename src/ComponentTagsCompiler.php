@@ -116,7 +116,6 @@ class ComponentTagsCompiler
 
                 if ($this->isExpressionAttribute($name)) {
                     $name = substr($name, 1);
-                    $value = trim($value, '"');
                     $value = $this->trimQuotes($value);
 
                     return "'{$name}' => {$value},";
@@ -149,10 +148,19 @@ class ComponentTagsCompiler
         return str_starts_with($name, ':') && !str_starts_with($name, '::');
     }
 
+    /**
+     * Remove the surrounding quotes of the attribute value,
+     * keeping quotes that belong to the expression itself.
+     *
+     * @param string $value
+     * @return string
+     */
     private function trimQuotes(string $value): string
     {
-        if (str_starts_with($value, '\'')) {
-            return trim($value, '\'');
+        $quote = substr($value, 0, 1);
+
+        if (strlen($value) >= 2 && in_array($quote, ['"', '\''], true) && str_ends_with($value, $quote)) {
+            return substr($value, 1, -1);
         }
 
         return $value;
