@@ -59,3 +59,38 @@ jobs:
       uses: coverallsapp/github-action@v2.3.7
       with:
         file: coverage
+
+  compatibility:
+
+    runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        php: ['8.3', '8.4', '8.5']
+      fail-fast: false
+
+    defaults:
+      run:
+        working-directory: tests/compatibility
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@2.37.2
+      with:
+        php-version: ${{ matrix.php }}
+        coverage: none
+        tools: composer
+
+    - name: Validate composer.json
+      run: composer validate --strict
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Create env
+      run: cp .env.example .env && php artisan key:generate
+
+    - name: Run test suite
+      run: composer run-script test
