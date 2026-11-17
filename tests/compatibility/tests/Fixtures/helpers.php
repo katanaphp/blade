@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace Tests\Fixtures;
 
 function format_money(): string
 {

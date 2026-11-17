@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Tests\Fixtures;
 
 abstract class Controller
 {
