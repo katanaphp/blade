@@ -10,15 +10,15 @@ Katana uses `.blade.php` extension for templates, traditionally stored in `/view
 
 ## Comparison
 
-| Feature                      | Katana | BladeOne |
-| ---------------------------- | ------ | -------- |
-| Layouts Components           | ✅     | 🟨       |
-| Layouts Template Inheritance | ✅     | ✅       |
-| Control Structures           | ✅     | ✅       |
-| Loops                        | ✅     | ✅       |
-| Conditional Class & Styles   | ✅     | ❌       |
-| Additional Form Attributes   | ✅     | ❌       |
-| Pipes                        | 🟨     | ✅       |
+| Feature                      | Katana | BladeOne | Laravel Blade |
+| ---------------------------- | ------ | -------- | ------------- |
+| Layouts Components           | ✅     | 🟨       | ✅            |
+| Layouts Template Inheritance | ✅     | ✅       | ✅            |
+| Control Structures           | ✅     | ✅       | ✅            |
+| Loops                        | ✅     | ✅       | ✅            |
+| Conditional Class & Styles   | ✅     | ❌       | ✅            |
+| Additional Form Attributes   | ✅     | ❌       | ✅            |
+| Pipes                        | 🟨     | ✅       | 🟨            |
 
 > [!NOTE]
 > Pipes are now natively supported in PHP 8.5.
