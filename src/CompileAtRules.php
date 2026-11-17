@@ -225,7 +225,7 @@ class CompileAtRules
 
     protected function compileContinue(string $expression): string
     {
-        return "<?php continue; ?>";
+        return $this->compileLoopControl('continue', $expression);
     }
 
     protected function compileIsset(string $expression): string
@@ -293,7 +293,22 @@ class CompileAtRules
 
     protected function compileBreak(string $expression): string
     {
-        return "<?php break; ?>";
+        return $this->compileLoopControl('break', $expression);
+    }
+
+    /**
+     * Compiles @break and @continue, with or without
+     * a condition, e.g. @break or @break($user->isAdmin).
+     */
+    protected function compileLoopControl(string $statement, string $expression): string
+    {
+        $condition = trim($this->trimParenthesis(trim($expression)));
+
+        if ($condition === '') {
+            return "<?php {$statement}; ?>";
+        }
+
+        return "<?php if({$condition}) {$statement}; ?>";
     }
 
     protected function compileEndswitch(string $expression): string
