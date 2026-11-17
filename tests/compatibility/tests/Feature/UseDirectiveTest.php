@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
+use Orchestra\Testbench\TestCase;
 use Tests\Support\ComparesWithKatana;
-use Tests\TestCase;
 
 use function Tests\Fixtures\format_money;
 

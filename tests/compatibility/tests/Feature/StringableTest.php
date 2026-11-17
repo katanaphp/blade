@@ -7,10 +7,10 @@ use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Blade;
+use Orchestra\Testbench\TestCase;
 use Tests\Fixtures\Controller;
 use Tests\Fixtures\User;
 use Tests\Support\ComparesWithKatana;
-use Tests\TestCase;
 
 class StringableTest extends TestCase
 {
