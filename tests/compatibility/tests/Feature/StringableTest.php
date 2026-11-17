@@ -9,28 +9,28 @@ use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Blade;
-use RuntimeException;
+use Tests\Support\ComparesWithKatana;
 use Tests\TestCase;
 
 class StringableTest extends TestCase
 {
+    use ComparesWithKatana;
+
     public function testStringableWorksWithEscapedAndUnscapedOutput(): void
     {
         $output = "<b>Bold</b>";
 
-        Blade::stringable(fn(User $_) => $output);
+        $this->stringable(fn(User $_) => $output);
 
-        $this->assertSame(
-            htmlentities($output),
-            Blade::render('{{ $user }}', ['user' => new User])
-        );
+        $this->assertRendersSame('{{ $user }}', ['user' => new User]);
 
-        $this->assertSame(
-            $output,
-            Blade::render('{!! $user !!}', ['user' => new User])
-        );
+        $this->assertRendersSame('{!! $user !!}', ['user' => new User]);
     }
 
+    /**
+     * Laravel only: Katana registers stringables by the
+     * closure's type hint and has no class string form.
+     */
     public function testWithClassString(): void
     {
         $output = "I am always, a user";
@@ -82,23 +82,17 @@ class StringableTest extends TestCase
     public function testClosureWithClass(): void
     {
         $output = "I am a user";
-        Blade::stringable(fn(User $user) => $output);
+        $this->stringable(fn(User $user) => $output);
 
-        $this->assertSame(
-            $output,
-            Blade::render('{{ $user }}', ['user' => new User()])
-        );
+        $this->assertRendersSame('{{ $user }}', ['user' => new User()]);
     }
 
     public function testStringableUsesLastRegisteredClosure(): void
     {
-        Blade::stringable(fn(User $_) => 'First user');
-        Blade::stringable(fn(User $_) => 'Second user');
+        $this->stringable(fn(User $_) => 'First user');
+        $this->stringable(fn(User $_) => 'Second user');
 
-        $this->assertSame(
-            'Second user',
-            Blade::render('{{ $user }}', ['user' => new User])
-        );
+        $this->assertRendersSame('{{ $user }}', ['user' => new User]);
     }
 
 
@@ -106,19 +100,15 @@ class StringableTest extends TestCase
     {
         $output = "Interface will output class";
 
-        Blade::stringable(fn(Authenticatable $_) => $output);
+        $this->stringable(fn(Authenticatable $_) => $output);
 
-        $this->assertSame(
-            '[]',
-            Blade::render('{{ $user }}', ['user' => new User()])
-        );
+        $this->assertRendersSame('{{ $user }}', ['user' => new User()]);
     }
 
     public function testClosureWithIntersectionTypesAreNotSupported(): void
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('The first parameter of the given Closure is missing a type hint.');
-
-        Blade::stringable(fn(Authenticatable|Controller $_) => '');
+        $this->assertThrowsSame(
+            fn($blade) => $blade->stringable(fn(Authenticatable|Controller $_) => '')
+        );
     }
 }
