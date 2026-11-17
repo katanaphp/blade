@@ -14,10 +14,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/unit/"
         },
         "files": [
-            "./tests/Constants.php"
+            "./tests/unit/Constants.php"
         ]
     },
     "require": {

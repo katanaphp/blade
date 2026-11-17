@@ -1,0 +1,38 @@
+{
+    "name": "katanaphp/blade-compatibility-tests",
+    "type": "project",
+    "description": "Tests that compare Katana against Laravel Blade",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3"
+    },
+    "require-dev": {
+        "katanaphp/blade": "@dev",
+        "orchestra/testbench": "^11.3",
+        "phpunit/phpunit": "^12.5.12"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../.."
+        }
+    ],
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        },
+        "files": [
+            "tests/Fixtures/helpers.php"
+        ]
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
