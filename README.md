@@ -169,6 +169,7 @@ Template inheritance allows you to create layouts by defining a master template 
 | `{{ $attributes->class() }} Conditional`             |             | ✅     |
 | `{{ $attributes->prepends() }}`                      |             | ✅     |
 | `{{ $attributes->filter() }}`                        |             | ✅     |
+| `{{ $attributes->only() }}`                          |             | ✅     |
 | `{{ $attributes->whereStartsWith() }}`               |             | ✅     |
 | `{{ $attributes->whereDoesntStartWith() }}`          |             | ✅     |
 | `{{ $attributes->whereDoesntStartWith()->first() }}` |             | ✅     |
