@@ -1,10 +1,11 @@
-# Blade specification tests
+# Blade compatibility tests
 
-A minimal Laravel application whose tests determine the behaviour of Laravel Blade.
-It has its own `composer.json` and is independent of the package in the repository root.
+Tests that render templates with Laravel Blade and with Katana then compare the results.
+Laravel is provided by [Orchestra Testbench](https://packages.tools/testbench/), so there is no application skeleton needed.
+
+The suite has its own `composer.json` and is independent of the package in the repository root.
 
 ```sh
 composer install
-cp .env.example .env && php artisan key:generate
 composer test
 ```
