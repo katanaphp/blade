@@ -18,4 +18,13 @@ trait StackCompiler
     {
         return "<?php echo \$__env->getStack{$expression}; ?>";
     }
+
+    /**
+     * Opens an if block that is closed with @endif and
+     * entered when something was pushed to the stack.
+     */
+    public function compileHasStack(string $expression): string
+    {
+        return "<?php if(\$__env->hasStack{$expression}): ?>";
+    }
 }

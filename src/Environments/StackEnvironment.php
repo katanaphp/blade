@@ -25,4 +25,9 @@ trait StackEnvironment
     {
         return implode('', $this->stacks[$name] ?? []);
     }
+
+    public function hasStack(string $name): bool
+    {
+        return isset($this->stacks[$name]);
+    }
 }
