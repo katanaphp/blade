@@ -10,29 +10,27 @@ class Loop
      * Indicates if the current element is the
      * last element in the iteration.
      *
-     * Remains unset if the loop is not countable.
-     *
-     * @var boolean
+     * Remains null if the loop is not countable.
      */
-    public bool $last;
+    public ?bool $last = null;
 
     public int $index = -1;
     public int $iteration = 0;
 
     /**
-     * In case of a countable loop, these
-     * properties will be set.
-     *
-     * @var integer
+     * In case of a countable loop, these properties
+     * will be set. Otherwise they remain null.
      */
-    public int $count;
-    public int $remaining;
+    public ?int $count = null;
+    public ?int $remaining = null;
 
     public bool $even;
     public bool $odd;
 
     public ?self $parent = null;
-    public int $depth = 0;
+
+    // The nesting level of the loop, starting at 1.
+    public int $depth = 1;
 
     public function setData($data, ?self $parent = null)
     {
