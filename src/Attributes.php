@@ -71,8 +71,20 @@ class Attributes implements HtmlableInterface, IteratorAggregate
     public function removeProps(array $props): static
     {
         return $this->filter(
-            fn(string $name): bool => !in_array($name, $props) && !in_array(toCamelCase($name), $props)
+            fn($value, string $name): bool => !in_array($name, $props) && !in_array(toCamelCase($name), $props)
         );
+    }
+
+    /**
+     * Keeps only the given attributes.
+     *
+     * @return static
+     */
+    public function only(string|array $attributes): static
+    {
+        $attributes = is_string($attributes) ? [$attributes] : $attributes;
+
+        return $this->filter(fn($value, string $key) => in_array($key, $attributes));
     }
 
     /**
@@ -84,7 +96,7 @@ class Attributes implements HtmlableInterface, IteratorAggregate
     {
         $attributes = is_string($attributes) ? [$attributes] : $attributes;
 
-        return $this->filter(fn(string $key) => !in_array($key, $attributes));
+        return $this->filter(fn($value, string $key) => !in_array($key, $attributes));
     }
 
     public function __toString(): string
@@ -168,25 +180,30 @@ class Attributes implements HtmlableInterface, IteratorAggregate
     }
 
 
+    /**
+     * Keeps the attributes for which the callback returns true.
+     *
+     * @param callable(mixed $value, string $key): bool $callback
+     */
     public function filter(callable $callback): static
     {
-        $attributes = array_filter(
-            $this->attributes,
-            fn($value, string $key) => $callback($key, $value),
-            ARRAY_FILTER_USE_BOTH
+        return new static(
+            array_filter(
+                $this->attributes,
+                $callback,
+                ARRAY_FILTER_USE_BOTH,
+            ),
         );
-
-        return new static($attributes);
     }
 
     public function whereStartsWith(string $needle): static
     {
-        return $this->filter(fn(string $key) => str_starts_with($key, $needle));
+        return $this->filter(fn($value, string $key) => str_starts_with($key, $needle));
     }
 
     public function whereDoesntStartWith(string $needle): static
     {
-        return $this->filter(fn(string $key) => !str_starts_with($key, $needle));
+        return $this->filter(fn($value, string $key) => !str_starts_with($key, $needle));
     }
 
     public function first(): static

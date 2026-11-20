@@ -95,6 +95,8 @@ You can access all the attributes passed to a component using the `$attributes` 
 
 - `merge(array $defaultAttributes)`: Merges the given array with the component's attributes.
 - `except(array $keys)`: Remove the given keys from the component's attributes.
+- `only(array $keys)`: Keep only the given keys from the component's attributes.
+- `filter(callable $callback)`: Keep the attributes for which the callback returns true. The callback receives the value first, then the key.
 - `first(string $key)`: Get the first value from the component's attributes for the given key.
 - `get(string $key)`: Get the value from the component's attributes for the given key.
 - `has(string $key)`: Determine if the component's attributes contain a value for the given key.

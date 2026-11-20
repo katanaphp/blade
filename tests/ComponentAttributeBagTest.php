@@ -143,12 +143,148 @@ class ComponentAttributeBagTest extends TestCase
     {
         $this->createComponent(
             'alert',
-            '<div {{ $attributes->filter(fn (string $key, string $value) => str_contains($key, "type")) }}></div>'
+            '<div {{ $attributes->filter(fn (string $value, string $key) => str_contains($key, "type")) }}></div>'
         );
 
         $this->assertSame(
             "<div type='warning' data-type-full='alert-warning'></div>",
             $this->renderBlade('<x-alert type="warning" data-type-full="alert-warning" aria-label="Clicky ti click"/>')
+        );
+    }
+
+    public function testFilterMethodPassesValueAsFirstArgument(): void
+    {
+        $this->createComponent(
+            'alert',
+            '<div {{ $attributes->filter(fn (string $value) => $value === "warning") }}></div>'
+        );
+
+        $this->assertSame(
+            "<div type='warning'></div>",
+            $this->renderBlade('<x-alert type="warning" data-type-full="alert-warning" aria-label="warning sign"/>')
+        );
+    }
+
+    public function testFilterMethodPassesKeyAsSecondArgument(): void
+    {
+        $this->createComponent(
+            'alert',
+            '<div {{ $attributes->filter(fn (string $value, string $key) => $key === "type" && $value === "warning") }}></div>'
+        );
+
+        $this->assertSame(
+            "<div type='warning'></div>",
+            $this->renderBlade('<x-alert type="warning" warning="type"/>')
+        );
+    }
+
+    public function testFilterDoesntMutateOriginalAttributeBag(): void
+    {
+        $this->createComponent(
+            'alert',
+            '@php $attributes->filter(fn (string $value, string $key) => $key === "type"); @endphp' .
+                '<div {{ $attributes }}></div>'
+        );
+
+        $this->assertSame(
+            "<div type='warning' id='notice'></div>",
+            $this->renderBlade('<x-alert type="warning" id="notice"/>')
+        );
+    }
+
+    public function testOnlyMethodWithArray(): void
+    {
+        $this->createComponent(
+            'alert',
+            '<div {{ $attributes->only(["class", "id"]) }}></div>'
+        );
+
+        $this->assertSame(
+            "<div class='big' id='notice'></div>",
+            $this->renderBlade('<x-alert type="warning" class="big" id="notice" aria-label="Clicky ti click"/>')
+        );
+    }
+
+    public function testOnlyMethodWithString(): void
+    {
+        $this->createComponent(
+            'alert',
+            '<div {{ $attributes->only("class") }}></div>'
+        );
+
+        $this->assertSame(
+            "<div class='big'></div>",
+            $this->renderBlade('<x-alert type="warning" class="big" id="notice"/>')
+        );
+    }
+
+    public function testOnlyMethodKeepsOrderInWhichAttributesWerePassed(): void
+    {
+        $this->createComponent(
+            'alert',
+            '<div {{ $attributes->only(["id", "class"]) }}></div>'
+        );
+
+        $this->assertSame(
+            "<div class='big' id='notice'></div>",
+            $this->renderBlade('<x-alert class="big" type="warning" id="notice"/>')
+        );
+    }
+
+    public function testOnlyMethodIgnoresAttributesThatWereNotPassed(): void
+    {
+        $this->createComponent(
+            'alert',
+            '<div {{ $attributes->only(["class", "id"]) }}></div>'
+        );
+
+        $this->assertSame(
+            "<div class='big'></div>",
+            $this->renderBlade('<x-alert class="big" type="warning"/>')
+        );
+
+        $this->assertSame(
+            "<div ></div>",
+            $this->renderBlade('<x-alert type="warning"/>')
+        );
+    }
+
+    public function testOnlyMethodWithMultiWordAttribute(): void
+    {
+        $this->createComponent(
+            'alert',
+            '<div {{ $attributes->only("aria-label") }}></div>'
+        );
+
+        $this->assertSame(
+            "<div aria-label='Clicky ti click'></div>",
+            $this->renderBlade('<x-alert type="warning" aria-label="Clicky ti click"/>')
+        );
+    }
+
+    public function testOnlyAndExceptSplitAttributesBetweenElements(): void
+    {
+        $this->createComponent(
+            'field',
+            '<label {{ $attributes->only("class") }}><input {{ $attributes->except("class") }}></label>'
+        );
+
+        $this->assertSame(
+            "<label class='wide'><input type='email' name='email'></label>",
+            $this->renderBlade('<x-field class="wide" type="email" name="email"/>')
+        );
+    }
+
+    public function testOnlyDoesntMutateOriginalAttributeBag(): void
+    {
+        $this->createComponent(
+            'alert',
+            '@php $attributes->only("class"); @endphp<div {{ $attributes }}></div>'
+        );
+
+        $this->assertSame(
+            "<div class='big' id='notice'></div>",
+            $this->renderBlade('<x-alert class="big" id="notice"/>')
         );
     }
 
