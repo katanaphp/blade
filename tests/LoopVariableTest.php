@@ -172,8 +172,28 @@ class LoopVariableTest extends TestCase
         $output = $this->renderBlade($blade);
 
         $this->assertEquals(
-            "0 1 2",
+            "1 2 3",
             $this->removeIndentation($output)
+        );
+    }
+
+    public function testDepthIsResetForSiblingLoops(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach([1] as $first)
+                @foreach([1] as $nested)
+                    {{ $loop->depth }}
+                @endforeach
+                {{ $loop->depth }}
+            @endforeach
+            @foreach([1] as $second)
+                {{ $loop->depth }}
+            @endforeach
+        BLADE;
+
+        $this->assertEquals(
+            "2 1 1",
+            $this->removeIndentation($this->renderBlade($blade))
         );
     }
 
@@ -193,8 +213,22 @@ class LoopVariableTest extends TestCase
         $output = $this->renderBlade($blade);
 
         $this->assertEquals(
-            "0 1",
+            "1 2",
             $this->removeIndentation($output)
+        );
+    }
+
+    public function testParentIsNullForTopLevelLoop(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach([1] as $item)
+                {{ $loop->parent === null ? 'no parent' : 'has parent' }}
+            @endforeach
+        BLADE;
+
+        $this->assertEquals(
+            'no parent',
+            $this->removeIndentation($this->renderBlade($blade))
         );
     }
 
@@ -264,5 +298,117 @@ class LoopVariableTest extends TestCase
             "0-0-1 1-1-2 2-2-3",
             $this->removeIndentation($output)
         );
+    }
+
+    public function testCountIsNullForGenerator(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach($numbers() as $item)
+                {{ $loop->count === null ? 'null' : $loop->count }}
+            @endforeach
+        BLADE;
+
+        $output = $this->renderBlade($blade, ['numbers' => $this->twoItemGenerator()]);
+
+        $this->assertEquals(
+            'null null',
+            $this->removeIndentation($output)
+        );
+    }
+
+    public function testRemainingIsNullForGenerator(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach($numbers() as $item)
+                {{ $loop->remaining === null ? 'null' : $loop->remaining }}
+            @endforeach
+        BLADE;
+
+        $output = $this->renderBlade($blade, ['numbers' => $this->twoItemGenerator()]);
+
+        $this->assertEquals(
+            'null null',
+            $this->removeIndentation($output)
+        );
+    }
+
+    public function testLastIsNullForGenerator(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach($numbers() as $item)
+                {{ $loop->last === null ? 'null' : 'bool' }}
+            @endforeach
+        BLADE;
+
+        $output = $this->renderBlade($blade, ['numbers' => $this->twoItemGenerator()]);
+
+        $this->assertEquals(
+            'null null',
+            $this->removeIndentation($output)
+        );
+    }
+
+    public function testLastCanBeUsedInConditionForGenerator(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach($numbers() as $item)
+                {{ $item }}@if(!$loop->last),@endif
+            @endforeach
+        BLADE;
+
+        $output = $this->renderBlade($blade, ['numbers' => $this->twoItemGenerator()]);
+
+        $this->assertEquals(
+            '1, 2,',
+            $this->removeIndentation($output)
+        );
+    }
+
+    public function testOtherLoopVariablesWorkForGenerator(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach($numbers() as $item)
+                index: {{ $loop->index }},
+                iteration: {{ $loop->iteration }},
+                first: {{ $loop->first ? 'yes' : 'no' }},
+                even: {{ $loop->even ? 'yes' : 'no' }},
+                odd: {{ $loop->odd ? 'yes' : 'no' }},
+                depth: {{ $loop->depth }};
+            @endforeach
+        BLADE;
+
+        $output = $this->renderBlade($blade, ['numbers' => $this->twoItemGenerator()]);
+
+        $this->assertEquals(
+            'index: 0, iteration: 1, first: yes, even: no, odd: yes, depth: 1; ' .
+            'index: 1, iteration: 2, first: no, even: yes, odd: no, depth: 1;',
+            $this->removeIndentation($output)
+        );
+    }
+
+    public function testCountableIteratorStillExposesCountRemainingAndLast(): void
+    {
+        $blade = <<<'BLADE'
+            @foreach($numbers as $item)
+                count: {{ $loop->count }},
+                remaining: {{ $loop->remaining }},
+                last: {{ $loop->last ? 'yes' : 'no' }};
+            @endforeach
+        BLADE;
+
+        $output = $this->renderBlade($blade, ['numbers' => new ArrayIterator([1, 2])]);
+
+        $this->assertEquals(
+            'count: 2, remaining: 1, last: no; count: 2, remaining: 0, last: yes;',
+            $this->removeIndentation($output)
+        );
+    }
+
+    private function twoItemGenerator(): \Closure
+    {
+        return function () {
+            yield 1;
+            yield 2;
+        };
     }
 }
