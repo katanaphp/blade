@@ -20,9 +20,13 @@ class View implements HtmlableInterface
         return $this->render(fn(Blade $engine) => $engine->getFragment($name));
     }
 
-    public function fragments(array $fragments): string
+    public function fragments(?array $fragments = null): string
     {
         return $this->render(function (Blade $engine) use ($fragments) {
+            if ($fragments === null) {
+                return implode('', $engine->getFragments());
+            }
+
             $output = '';
 
             foreach ($fragments as $name) {
@@ -33,15 +37,35 @@ class View implements HtmlableInterface
         });
     }
 
-    public function fragmentIf(bool| callable $condition, string $name)
+    public function fragmentIf(bool | callable $condition, string $name): string
     {
-        $value = is_callable($condition) ? $condition() : $condition;
-
-        if ($value) {
-            return $this->render(fn(Blade $engine) => $engine->getFragment($name));
+        if ($this->conditionIsMet($condition)) {
+            return $this->fragment($name);
         }
 
-        return $this;
+        return $this->render();
+    }
+
+    /**
+     * Renders the given fragments (or all of them) when
+     * the condition is met, the whole view otherwise.
+     */
+    public function fragmentsIf(bool | callable $condition, ?array $fragments = null): string
+    {
+        if ($this->conditionIsMet($condition)) {
+            return $this->fragments($fragments);
+        }
+
+        return $this->render();
+    }
+
+    private function conditionIsMet(bool | callable $condition): bool
+    {
+        if (is_callable($condition)) {
+            return (bool) $condition();
+        }
+
+        return $condition;
     }
 
     public function toHtml(): string
@@ -57,7 +81,14 @@ class View implements HtmlableInterface
     public function render(?callable $callback = null): string
     {
         ob_start();
-        $this->engine->renderContents($this->view, $this->data);
+        $this->engine->startRenderingView();
+
+        try {
+            $this->engine->renderContents($this->view, $this->data);
+        } finally {
+            $this->engine->stopRenderingView();
+        }
+
         $output =  ob_get_clean();
 
         if ($callback) {
