@@ -254,6 +254,99 @@ class ComponentSlotsTest extends TestCase
         );
     }
 
+    public function testSlotAttributesDoNotContainSlotName(): void
+    {
+        $this->createComponent(
+            'card',
+            '<h1 {{ $header->attributes }}>{{ $header }}</h1>'
+        );
+
+        $blade = <<<'BLADE'
+        <x-card>
+            <x-slot name="header" class="font-bold" data-test="value">Title</x-slot>
+        </x-card>
+        BLADE;
+
+        $this->assertSame(
+            "<h1 class='font-bold' data-test='value'>Title</h1>",
+            $this->removeIndentation($this->renderBlade($blade))
+        );
+    }
+
+    public function testSlotAttributesAreEmptyWhenOnlyNameIsGiven(): void
+    {
+        $this->createComponent(
+            'card',
+            '[{{ $header->attributes }}]{{ $header->attributes->has("name") ? "has name" : "no name" }}'
+        );
+
+        $blade = <<<'BLADE'
+        <x-card>
+            <x-slot name="header">Title</x-slot>
+        </x-card>
+        BLADE;
+
+        $this->assertSame(
+            '[]no name',
+            $this->removeIndentation($this->renderBlade($blade))
+        );
+    }
+
+    public function testSlotNameIsNotMergedIntoSlotAttributes(): void
+    {
+        $this->createComponent(
+            'card',
+            '<h1 {{ $header->attributes->class(["text-lg"]) }}>{{ $header }}</h1>'
+        );
+
+        $blade = <<<'BLADE'
+        <x-card>
+            <x-slot name="header" class="font-bold">Title</x-slot>
+        </x-card>
+        BLADE;
+
+        $output = $this->removeIndentation($this->renderBlade($blade));
+
+        $this->assertStringNotContainsString('name=', $output);
+        $this->assertStringContainsString('font-bold', $output);
+        $this->assertStringContainsString('text-lg', $output);
+    }
+
+    public function testSlotNameIsNotInAttributesOfAnyNamedSlot(): void
+    {
+        $this->createComponent(
+            'card',
+            '<header {{ $header->attributes }}>{{ $header }}</header><footer {{ $footer->attributes }}>{{ $footer }}</footer>'
+        );
+
+        $blade = <<<'BLADE'
+        <x-card>
+            <x-slot name="header" id="top">Head</x-slot>
+            <x-slot name="footer" id="bottom">Foot</x-slot>
+        </x-card>
+        BLADE;
+
+        $this->assertSame(
+            "<header id='top'>Head</header><footer id='bottom'>Foot</footer>",
+            $this->removeIndentation($this->renderBlade($blade))
+        );
+    }
+
+    public function testSlotDirectiveAttributesDoNotContainSlotName(): void
+    {
+        $this->createComponent(
+            'card',
+            '[{{ $header->attributes }}]{{ $header }}'
+        );
+
+        $this->assertSame(
+            '[]Title',
+            $this->removeIndentation(
+                $this->renderBlade("@component('card')@slot('header')Title@endslot @endcomponent")
+            )
+        );
+    }
+
     public function testComponentIsAvailableInSlot(): void
     {
         $this->createComponent('alert', '<div>{{ $slot }}</div>');

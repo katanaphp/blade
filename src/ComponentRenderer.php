@@ -41,6 +41,9 @@ class ComponentRenderer
     {
         $name = $data['name'] ?? $tag;
 
+        // The name only identifies the slot, it is not one of the attributes passed to it.
+        unset($data['name']);
+
         $this->slots[$name] = (object) [
             'name' => $name,
             'attributes' => new Attributes($data),
