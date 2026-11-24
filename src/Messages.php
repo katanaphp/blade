@@ -18,6 +18,6 @@ class Messages
     public const ERROR_INVALID_STRINGABLE_PARAM = "The first parameter of the the closure must a concrete class and should not be a builtin type";
     public const ERROR_INVALID_DIRECTIVE_NAME = "Invalid directive name `%s` only alphabets, numbers and underscores are supported. Namespaces must use two colons as separator";
     public const ERROR_CSRF_CALLBACK_REQUIRED = '@csrf cannot be called without registering a callback using Config::setCsrfCallback ';
-    public const ERROR_INVALID_JSON_FLAGS = 'Invalid @json flags `%s`: expected integers or JSON_* constants, optionally joined by "|".';
+    public const ERROR_COMPLEX_JSON_EXPRESSION = 'Complex expression as first param detected, use a variable to pass value.';
     public const ERROR_INVALID_JSON_DEPTH = 'Invalid @json depth `%s`: expected a number between %d and %d.';
 }

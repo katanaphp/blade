@@ -137,7 +137,7 @@ class JsonDirectiveTest  extends TestCase
     public function testThrowsOnInvalidFlags(): void
     {
         $this->expectException(BladeException::class);
-        $this->expectExceptionMessage(sprintf(Messages::ERROR_INVALID_JSON_FLAGS, 'JSON_PRETY_PRINT'));
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
 
         $this->renderBlade('@json($content, JSON_PRETY_PRINT)', ['content' => [1, 2, 3]]);
     }
@@ -145,15 +145,14 @@ class JsonDirectiveTest  extends TestCase
     public function testThrowsOnInvalidFlagInsideCombination(): void
     {
         $this->expectException(BladeException::class);
-        $this->expectExceptionMessage(sprintf(Messages::ERROR_INVALID_JSON_FLAGS, 'JSON_HEX_TAG | JSON_NOPE'));
-
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
         $this->renderBlade('@json($content, JSON_HEX_TAG | JSON_NOPE)', ['content' => [1, 2, 3]]);
     }
 
     public function testThrowsOnConstantThatIsNotAJsonFlag(): void
     {
         $this->expectException(BladeException::class);
-        $this->expectExceptionMessage(sprintf(Messages::ERROR_INVALID_JSON_FLAGS, 'PHP_INT_MAX'));
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
 
         $this->renderBlade('@json($content, PHP_INT_MAX)', ['content' => [1, 2, 3]]);
     }
@@ -185,7 +184,7 @@ class JsonDirectiveTest  extends TestCase
     public function testThrowsWhenDataContainsComma(): void
     {
         $this->expectException(BladeException::class);
-        $this->expectExceptionMessage(sprintf(Messages::ERROR_INVALID_JSON_FLAGS, '["{x}" => 1])'));
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
 
         $this->renderBlade('@json(__("key", ["{x}" => 1]))');
     }

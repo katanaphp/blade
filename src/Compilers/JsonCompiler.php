@@ -25,7 +25,7 @@ trait JsonCompiler
         $depth = trim($params[2] ?? '512');
 
         if (!$this->isJsonFlags($flags)) {
-            throw new BladeException(sprintf(Messages::ERROR_INVALID_JSON_FLAGS, $flags));
+            throw new BladeException(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
         }
 
         // json_encode() itself only accepts a depth between 1 and the 32 bit integer limit.
