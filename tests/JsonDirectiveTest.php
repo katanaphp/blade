@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use Blade\Exceptions\BladeException;
+use Blade\Messages;
 use JsonException;
 use PHPUnit\Framework\TestCase;
 
@@ -103,5 +105,87 @@ class JsonDirectiveTest  extends TestCase
                 'content' => [[[]]]
             ]
         );
+    }
+
+    public function testSupportsCombinedFlags(): void
+    {
+        $this->assertSame(
+            "[\n    1,\n    2\n]",
+            $this->renderBlade('@json($content, JSON_PRETTY_PRINT | JSON_HEX_TAG, 512)', ['content' => [1, 2]])
+        );
+    }
+
+    public function testSupportsNumericFlags(): void
+    {
+        $this->assertSame(
+            "[\n    1,\n    2\n]",
+            $this->renderBlade('@json($content, 128)', ['content' => [1, 2]])
+        );
+
+        $this->assertSame(
+            "[\n    1,\n    2\n]",
+            $this->renderBlade('@json($content, JSON_HEX_TAG | 128)', ['content' => [1, 2]])
+        );
+    }
+
+    public function testAcceptsDepthAtMinimumAndMaximum(): void
+    {
+        $this->assertSame('1', $this->renderBlade('@json($content, JSON_HEX_TAG, 1)', ['content' => 1]));
+        $this->assertSame('[1]', $this->renderBlade('@json($content, JSON_HEX_TAG, 2147483647)', ['content' => [1]]));
+    }
+
+    public function testThrowsOnInvalidFlags(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
+
+        $this->renderBlade('@json($content, JSON_PRETY_PRINT)', ['content' => [1, 2, 3]]);
+    }
+
+    public function testThrowsOnInvalidFlagInsideCombination(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
+        $this->renderBlade('@json($content, JSON_HEX_TAG | JSON_NOPE)', ['content' => [1, 2, 3]]);
+    }
+
+    public function testThrowsOnConstantThatIsNotAJsonFlag(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
+
+        $this->renderBlade('@json($content, PHP_INT_MAX)', ['content' => [1, 2, 3]]);
+    }
+
+    public function testThrowsOnInvalidDepth(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(sprintf(Messages::ERROR_INVALID_JSON_DEPTH, 'deep', 1, 2147483647));
+
+        $this->renderBlade('@json($content, JSON_HEX_TAG, deep)', ['content' => [1, 2, 3]]);
+    }
+
+    public function testThrowsOnDepthBelowMinimum(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(sprintf(Messages::ERROR_INVALID_JSON_DEPTH, '0', 1, 2147483647));
+
+        $this->renderBlade('@json($content, JSON_HEX_TAG, 0)', ['content' => [1, 2, 3]]);
+    }
+
+    public function testThrowsOnDepthAboveMaximum(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(sprintf(Messages::ERROR_INVALID_JSON_DEPTH, '2147483648', 1, 2147483647));
+
+        $this->renderBlade('@json($content, JSON_HEX_TAG, 2147483648)', ['content' => [1, 2, 3]]);
+    }
+
+    public function testThrowsWhenDataContainsComma(): void
+    {
+        $this->expectException(BladeException::class);
+        $this->expectExceptionMessage(Messages::ERROR_COMPLEX_JSON_EXPRESSION);
+
+        $this->renderBlade('@json(__("key", ["{x}" => 1]))');
     }
 }
